@@ -1,0 +1,21 @@
+services:
+  db:
+    container_name: account_db
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: cfkiatong
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - account_db_data:/data/postgres
+    ports:
+      - "5532:5432"
+    networks:
+      - db
+    restart: unless-stopped
+
+networks:
+  db:
+    driver: bridge
+volumes:
+  account_db_data:
