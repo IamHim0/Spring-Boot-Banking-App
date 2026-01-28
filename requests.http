@@ -1,6 +1,41 @@
 ### GET request to example server
 GET https://examples.http-client.intellij.net/get
     ?generated-in=IntelliJ IDEA
+
 ###
 GET http://localhost:8080/
+
 ###
+POST http://localhost:8080/api/v1/sbbankingapp
+Content-Type: application/json
+
+{
+  "firstName": "Dave",
+  "lastName": "Kiat-ong",
+  "username": "asdfasdf",
+  "password": "asdf",
+  "initialBalance": 1000,
+  "balance": 1000
+}
+
+
+###
+PATCH http://localhost:8080/api/v1/sbbankingapp/updateaccount/jkiat-ong
+Content-Type: application/json
+
+{
+  "newUsername": "kiat-ongj",
+  "newPassword": "bontocjkiat-ong"
+}
+
+###
+GET http://localhost:8080/api/v1/sbbankingapp/username/asdfasd
+
+###
+GET http://localhost:8080/api/v1/sbbankingapp/0c68f112-14c0-42ec-898e-fd685721e60f
+
+###
+DELETE http://localhost:8080/api/v1/sbbankingapp/deletebyid/b4abf5cf-2296-41ec-aa84-beb5b1d71dc5
+
+###
+DELETE http://localhost:8080/api/v1/sbbankingapp/deletebyusername/asdf
