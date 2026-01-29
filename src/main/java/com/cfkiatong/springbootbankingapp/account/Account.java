@@ -2,6 +2,7 @@ package com.cfkiatong.springbootbankingapp.account;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -16,14 +17,14 @@ public class Account {
     @Column(nullable = false, unique = true)
     private String username;
     private String password;
-    private double initialBalance;
-    private double balance;
+    private BigDecimal initialBalance;
+    private BigDecimal balance;
 
     protected Account() {
 
     }
 
-    public Account(String firstName, String lastName, String username, String password, double initialBalance, double balance) {
+    public Account(String firstName, String lastName, String username, String password, BigDecimal initialBalance, BigDecimal balance) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -68,19 +69,19 @@ public class Account {
         this.password = password;
     }
 
-    public double getInitialBalance() {
+    public BigDecimal getInitialBalance() {
         return initialBalance;
     }
 
-    public void setInitialBalance(double initialBalance) {
+    public void setInitialBalance(BigDecimal initialBalance) {
         this.initialBalance = initialBalance;
     }
 
-    public double getBalance() {
+    public BigDecimal getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
