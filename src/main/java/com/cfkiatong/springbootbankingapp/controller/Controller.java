@@ -3,6 +3,7 @@ package com.cfkiatong.springbootbankingapp.controller;
 import com.cfkiatong.springbootbankingapp.account.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.services.Services;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -19,8 +20,8 @@ public class Controller {
     }
 
     @PostMapping
-    public void addAccount(@RequestBody Account account) {
-        services.addAccount(account);
+    public void addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
+        services.addAccount(createAccountRequest);
     }
 
     @GetMapping("/id/{id}")
@@ -60,8 +61,7 @@ public class Controller {
     }
 
     @PatchMapping("/withdraw/{username}")
-    public void makeWithdrawal(@PathVariable String username, @RequestBody WithdrawRequest withdrawRequest) {
+    public void makeWithdrawal(@PathVariable String username, @Valid @RequestBody WithdrawRequest withdrawRequest) {
         services.makeWithdrawal(username, withdrawRequest);
     }
-
 }

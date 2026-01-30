@@ -24,13 +24,13 @@ public class Account {
 
     }
 
-    public Account(String firstName, String lastName, String username, String password, BigDecimal initialBalance, BigDecimal balance) {
+    public Account(String firstName, String lastName, String username, String password, BigDecimal initialBalance) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
         this.initialBalance = initialBalance;
-        this.balance = balance;
+        this.balance = initialBalance;
     }
 
     public UUID getId() {

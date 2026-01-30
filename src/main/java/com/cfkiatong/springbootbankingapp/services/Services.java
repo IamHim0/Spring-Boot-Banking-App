@@ -5,10 +5,7 @@ import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.node.StringNode;
 
-import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -20,33 +17,43 @@ public class Services {
         this.accountRepository = accountRepository;
     }
 
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    private Account findAccount(String username) {
+        return accountRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Account with username: " + username + " not found"));
     }
 
-    public void addAccount(Account account) {
+    private Account findAccount(UUID id) {
+        return accountRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Account with id: " + id + " not found"));
+    }
+
+    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
+    public void addAccount(CreateAccountRequest createAccountRequest) {
+        if (accountRepository.findByUsername(createAccountRequest.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username is already taken");
+        }
+
+        Account account = new Account(createAccountRequest.getFirstName(), createAccountRequest.getLastName(), createAccountRequest.getUsername(), createAccountRequest.getPassword(), createAccountRequest.getInitialBalance());
         accountRepository.save(account);
     }
 
-    public void deleteAccountById(UUID id) {
-        accountRepository.deleteById(id);
-    }
-
     public ViewAccountResponse getAccountById(UUID id) {
-        return mapToViewAccountResponse(accountRepository.findById(id).orElseThrow(() -> new IllegalStateException(id + "not found")));
+        return mapToViewAccountResponse(findAccount(id));
     }
 
     public ViewAccountResponse getAccountByUsername(String username) {
-        return mapToViewAccountResponse(accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException(("Account not found"))));
+        return mapToViewAccountResponse(findAccount(username));
     }
 
     public ViewBalanceResponse viewBalance(String username) {
-        return mapToViewBalanceResponse(accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException(("Account not found"))));
+        return mapToViewBalanceResponse(findAccount(username));
     }
 
     @Transactional
     public void updateAccount(String username, UpdateAccountRequest updateAccountRequest) {
-        Account account = accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Account not found"));
+        if (updateAccountRequest.getNewFirstName() == null && updateAccountRequest.getNewLastName() == null && updateAccountRequest.getNewUsername() == null && updateAccountRequest.getNewPassword() == null) {
+            throw new IllegalArgumentException("Must update at least one field of the account");
+        }
+
+        Account account = findAccount(username);
 
         if (updateAccountRequest.getNewFirstName() != null) {
             account.setFirstName(updateAccountRequest.getNewFirstName());
@@ -62,21 +69,34 @@ public class Services {
         }
     }
 
+    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
+    public void deleteAccountById(UUID id) {
+        if (findAccount(id) != null) {
+            accountRepository.deleteById(id);
+        }
+    }
+
     @Transactional
     public void deleteAccountByUsername(String username) {
-        accountRepository.deleteByUsername(username);
+        if (findAccount(username) != null) {
+            accountRepository.deleteByUsername(username);
+        }
     }
 
     @Transactional
     public void makeDeposit(String username, DepositRequest depositRequest) {
-        Account account = accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Account not found"));
+        Account account = findAccount(username);
 
         account.setBalance(account.getBalance().add(depositRequest.getDeposit()));
     }
 
     @Transactional
     public void makeWithdrawal(String username, WithdrawRequest withdrawRequest) {
-        Account account = accountRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("Account not found"));
+        Account account = findAccount(username);
+
+        if (account.getBalance().compareTo(withdrawRequest.getWithdrawal()) < 0) {
+            throw new IllegalArgumentException("Balance is insufficient for this transaction");
+        }
 
         account.setBalance(account.getBalance().subtract(withdrawRequest.getWithdrawal()));
     }
