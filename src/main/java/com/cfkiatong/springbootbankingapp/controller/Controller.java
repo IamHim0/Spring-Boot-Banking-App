@@ -56,7 +56,7 @@ public class Controller {
     }
 
     @PatchMapping("/deposit/{username}")
-    public void makeDeposit(@PathVariable String username, @RequestBody DepositRequest depositRequest) {
+    public void makeDeposit(@PathVariable String username, @Valid @RequestBody DepositRequest depositRequest) {
         services.makeDeposit(username, depositRequest);
     }
 

@@ -1,7 +1,9 @@
-package com.cfkiatong.springbootbankingapp.exceptionhandlinng;
+package com.cfkiatong.springbootbankingapp.exception;
 
+import com.cfkiatong.springbootbankingapp.exception.business.BusinessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,6 +14,15 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("error: ", httpMessageNotReadableException.getMessage());
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
     //Handles validation errors from @Valid or @Validated
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,4 +47,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException businessException) {
+        Map<String, String> error = new HashMap<>();
+
+        error.put("error:", businessException.getMessage());
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 }
