@@ -1,11 +1,19 @@
 package com.cfkiatong.springbootbankingapp.dto;
 
+import jakarta.validation.constraints.AssertFalse;
+import jakarta.validation.constraints.AssertTrue;
+
 public class UpdateAccountRequest {
 
     private String newFirstName;
     private String newLastName;
     private String newUsername;
     private String newPassword;
+
+    @AssertTrue(message = "At least one field must be updated")
+    public boolean oneFieldPresent() {
+        return newFirstName != null || newLastName != null || newUsername != null || newPassword != null;
+    }
 
     public String getNewUsername() {
         return newUsername;

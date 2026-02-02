@@ -4,6 +4,7 @@ import com.cfkiatong.springbootbankingapp.account.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
+import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
 import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class Services {
     @Transactional
     public void updateAccount(String username, UpdateAccountRequest updateAccountRequest) {
         if (updateAccountRequest.getNewFirstName() == null && updateAccountRequest.getNewLastName() == null && updateAccountRequest.getNewUsername() == null && updateAccountRequest.getNewPassword() == null) {
-            throw new IllegalArgumentException("Must update at least one field of the account");
+            throw new NoFieldUpdatedException();
         }
 
         Account account = findAccount(username);

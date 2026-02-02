@@ -4,6 +4,7 @@ import com.cfkiatong.springbootbankingapp.account.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.services.Services;
 import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -35,7 +36,7 @@ public class Controller {
     }
 
     @PatchMapping("/updateaccount/{username}")
-    public void updateAccount(@PathVariable String username, @RequestBody UpdateAccountRequest updateAccountRequest) {
+    public void updateAccount(@PathVariable String username, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
         services.updateAccount(username, updateAccountRequest);
     }
 
