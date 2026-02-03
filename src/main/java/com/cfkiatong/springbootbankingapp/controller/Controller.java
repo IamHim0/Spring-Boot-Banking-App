@@ -30,14 +30,26 @@ public class Controller {
         return services.getAccountById(id);
     }
 
-    @GetMapping("/username/{username}")
-    public ViewAccountResponse getAccountByUsername(@PathVariable String username) {
+//    @GetMapping("/username/{username}")
+//    public ViewAccountResponse getAccountByUsername(@PathVariable String username) {
+//        return services.getAccountByUsername(username);
+//    }
+
+    @GetMapping
+    public ViewAccountResponse getAccountByUsername(@RequestParam String username) {
         return services.getAccountByUsername(username);
     }
 
-    @PatchMapping("/updateaccount/{username}")
+
+    @PatchMapping("/{username}")
     public void updateAccount(@PathVariable String username, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
         services.updateAccount(username, updateAccountRequest);
+    }
+
+    @DeleteMapping("/{username}")
+    public void deleteAccountByUsername(@PathVariable String username) {
+        System.out.println("Method called");
+        services.deleteAccountByUsername(username);
     }
 
     @DeleteMapping("/deletebyid/{id}")
@@ -45,24 +57,13 @@ public class Controller {
         services.deleteAccountById(id);
     }
 
-    @DeleteMapping("/deletebyusername/{username}")
-    public void deleteAccountByUsername(@PathVariable String username) {
-        System.out.println("Method called");
-        services.deleteAccountByUsername(username);
-    }
-
-    @GetMapping("/viewbalance/{username}")
+    @GetMapping("/{username}/balance")
     public ViewBalanceResponse ViewBalance(@PathVariable String username) {
         return services.viewBalance(username);
     }
 
-    @PatchMapping("/deposit/{username}")
-    public void makeDeposit(@PathVariable String username, @Valid @RequestBody DepositRequest depositRequest) {
-        services.makeDeposit(username, depositRequest);
-    }
-
-    @PatchMapping("/withdraw/{username}")
-    public void makeWithdrawal(@PathVariable String username, @Valid @RequestBody WithdrawRequest withdrawRequest) {
-        services.makeWithdrawal(username, withdrawRequest);
+    @PostMapping("/{username}/transactions")
+    public void makeTransaction(@PathVariable String username, @Valid @RequestBody TransactionRequest transactionRequest) {
+        services.makeTransaction(username, transactionRequest);
     }
 }

@@ -84,21 +84,22 @@ public class Services {
     }
 
     @Transactional
-    public void makeDeposit(String username, DepositRequest depositRequest) {
+    public void makeTransaction(String username, TransactionRequest transactionRequest) {
         Account account = findAccount(username);
 
-        account.setBalance(account.getBalance().add(depositRequest.getDeposit()));
-    }
+        switch (transactionRequest.getType().toLowerCase()) {
+            case "withdrawal":
+                if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+                    throw new InsufficientBalanceException();
+                }
 
-    @Transactional
-    public void makeWithdrawal(String username, WithdrawRequest withdrawRequest) {
-        Account account = findAccount(username);
+                account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
 
-        if (account.getBalance().compareTo(withdrawRequest.getWithdrawal()) < 0) {
-            throw new InsufficientBalanceException();
+                break;
+            case "deposit":
+                account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
+                break;
         }
-
-        account.setBalance(account.getBalance().subtract(withdrawRequest.getWithdrawal()));
     }
 
     public ViewBalanceResponse viewBalance(String username) {

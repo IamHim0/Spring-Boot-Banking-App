@@ -1,58 +1,55 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
-
-###
-GET http://localhost:8080/
-
-###
+###Create Account
 POST http://localhost:8080/api/v1/sbbankingapp
 Content-Type: application/json
 
 {
-  "firstName": "",
-  "lastName": "",
-  "username": "",
-  "password": "",
-  "initialBalance": 100
+  "firstName": "D",
+  "lastName": "K",
+  "username": "dk",
+  "password": "dk",
+  "initialBalance": 1000
 }
 
-###
-GET http://localhost:8080/api/v1/sbbankingapp/username/zxcv
+###Get account details using uName
+GET http://localhost:8080/api/v1/sbbankingapp?username=bingu
 
-###
+###Get account details using uId
 GET http://localhost:8080/api/v1/sbbankingapp/id/13241234
 
-###
-GET http://localhost:8080/api/v1/sbbankingapp/viewbalance/b
-
-###
-PATCH http://localhost:8080/api/v1/sbbankingapp/updateaccount/asdfasdf
+###Update account fields
+PATCH http://localhost:8080/api/v1/sbbankingapp/asdfasdf
 Content-Type: application/json
 
 {
+  "newFirstName": "asdf",
+  "newLastName": "asdf",
+  "newUsername": "asdf",
+  "newPassword": "asdf"
 }
 
-###
-DELETE http://localhost:8080/api/v1/sbbankingapp/deletebyusername/asdfzxcv
+###Delete account using uName
+DELETE http://localhost:8080/api/v1/sbbankingapp/asdfzxcv
 
-###
+###Delete account using uId
 DELETE http://localhost:8080/api/v1/sbbankingapp/deletebyid/zxvasdf415112341234
 
-
-
-###
-PATCH http://localhost:8080/api/v1/sbbankingapp/deposit/bingu
+###Withdrawal transaction
+POST http://localhost:8080/api/v1/sbbankingapp/asdfasdf/transactions
 Content-Type: application/json
 
 {
-  "deposit": 1000000
+  "type": "withdrawal",
+  "amount": 1000
 }
 
-###
-PATCH http://localhost:8080/api/v1/sbbankingapp/withdraw/asdfasdf
+###Get account balance
+GET http://localhost:8080/api/v1/sbbankingapp/bingu/balance
+
+###Deposit transaction
+POST http://localhost:8080/api/v1/sbbankingapp/asdfasdf/transactions
 Content-Type: application/json
 
 {
-  "withdrawal": 0
+  "type": "deposit",
+  "amount": 2000
 }
