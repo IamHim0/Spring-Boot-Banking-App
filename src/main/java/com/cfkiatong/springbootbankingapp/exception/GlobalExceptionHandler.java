@@ -1,72 +1,62 @@
 package com.cfkiatong.springbootbankingapp.exception;
 
-import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.BusinessException;
-import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
-import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.exception.errorbody.ApiError;
-import jakarta.servlet.http.HttpServlet;
+import com.cfkiatong.springbootbankingapp.exception.errorbody.FieldValidationError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.accept.ApiVersionResolver;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final JsonMapper.Builder builder;
-
-    public GlobalExceptionHandler(JsonMapper.Builder builder) {
-        this.builder = builder;
+    private ApiError buildApiError(HttpStatus status, String message, String path, List<FieldValidationError> errors) {
+        return new ApiError(LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                path,
+                errors);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException, HttpServletRequest request) {
-        ApiError apiError = new ApiError(LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                httpMessageNotReadableException.getMessage(),
-                request.getRequestURI(),
-                null);
-
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+                buildApiError(HttpStatus.BAD_REQUEST,
+                        httpMessageNotReadableException.getMessage(),
+                        request.getRequestURI(),
+                        null),
+                HttpStatus.BAD_REQUEST);
     }
 
     //Handles validation errors from @Valid or @Validated
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException validationExceptions) {
-        Map<String, String> errors = new HashMap<>();
+    public ResponseEntity<ApiError> newHandleValidationExceptions(MethodArgumentNotValidException validationExceptions, HttpServletRequest request) {
+        List<FieldValidationError> validationErrors = new ArrayList<>();
 
         validationExceptions.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+
+            FieldValidationError validationError = new FieldValidationError();
+
+            validationError.setField(((FieldError) error).getField());
+            validationError.setMessage(error.getDefaultMessage());
+            validationError.setRejectedValue(((FieldError) error).getRejectedValue());
+            validationErrors.add(validationError);
         });
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> newHandleValidationExceptions(MethodArgumentNotValidException validException, HttpServletRequest request) {
-        ApiError apiError = new ApiError(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                validException.getMessage(),
+        return new ResponseEntity<>(buildApiError(HttpStatus.BAD_REQUEST,
+                validationExceptions.getMessage(),
                 request.getRequestURI(),
-                null
-        );
-
-        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+                validationErrors), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BusinessException.class)
@@ -83,14 +73,12 @@ public class GlobalExceptionHandler {
             default -> status;
         };
 
-        ApiError apiError = new ApiError(LocalDateTime.now(),
-                status.value(),
-                status.getReasonPhrase(),
-                businessException.getMessage(),
-                request.getRequestURI(),
-                null);
-
-        return new ResponseEntity<>(apiError, status);
+        return new ResponseEntity<>(
+                buildApiError(status,
+                        businessException.getMessage(),
+                        request.getRequestURI(),
+                        null),
+                status);
     }
 
 //    @ExceptionHandler(IllegalArgumentException.class)

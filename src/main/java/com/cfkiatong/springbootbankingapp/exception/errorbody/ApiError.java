@@ -53,11 +53,11 @@ public class ApiError {
         this.message = message;
     }
 
-    public List<FieldValidationError> getErrors() {
+    public List<FieldValidationError> getValidationErrors() {
         return validationErrors;
     }
 
-    public void setErrors(List<FieldValidationError> validationErrors) {
+    public void setValidationErrors(List<FieldValidationError> validationErrors) {
         this.validationErrors = validationErrors;
     }
 

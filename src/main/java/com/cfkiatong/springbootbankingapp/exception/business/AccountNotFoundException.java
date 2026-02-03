@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class AccountNotFoundException extends BusinessException {
     public AccountNotFoundException(String username) {
-        super("The account with username '" + username + "'does not exist");
+        super("The account with username '" + username + "' does not exist");
     }
 
     public AccountNotFoundException(UUID id) {

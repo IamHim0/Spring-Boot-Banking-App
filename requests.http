@@ -10,15 +10,15 @@ POST http://localhost:8080/api/v1/sbbankingapp
 Content-Type: application/json
 
 {
-  "firstName": 1234,
-  "lastName": 1234,
-  "username": 1234,
-  "password": "pass",
-  "initialBalance": "asdf"
+  "firstName": "",
+  "lastName": "",
+  "username": "",
+  "password": "",
+  "initialBalance": 100
 }
 
 ###
-GET http://localhost:8080/api/v1/sbbankingapp/username/bingu
+GET http://localhost:8080/api/v1/sbbankingapp/username/zxcv
 
 ###
 GET http://localhost:8080/api/v1/sbbankingapp/id/13241234
