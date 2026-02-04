@@ -1,6 +1,7 @@
 package com.cfkiatong.springbootbankingapp.controller;
 
 import com.cfkiatong.springbootbankingapp.dto.*;
+import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
 import com.cfkiatong.springbootbankingapp.services.Services;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
@@ -18,44 +19,30 @@ public class AccountController {
         this.services = services;
     }
 
+    //Create Account
     @PostMapping
     public void addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
         services.addAccount(createAccountRequest);
     }
 
-    @GetMapping
-    public ViewAccountResponse getAccountByUsername(@RequestParam String username) {
-        return services.getAccountByUsername(username);
-    }
-
+    //ID BASED MAPPING:
     @GetMapping("/{id}")
-    public ViewAccountResponse getAccountById(@PathVariable UUID id) {
-        return services.getAccountById(id);
-    }
-
-    @PatchMapping
-    public void updateAccount(@RequestParam String username, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
-        services.updateAccount(username, updateAccountRequest);
+    public ViewAccountResponse getAccount(@PathVariable UUID id) {
+        return services.getAccount(id);
     }
 
     @PatchMapping("/{id}")
     public void updateAccount(@PathVariable UUID id, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
-        services.updateAccount(id, updateAccountRequest);
-    }
+        if (!updateAccountRequest.oneFieldPresent()) {
+            throw new NoFieldUpdatedException();
+        }
 
-    @DeleteMapping
-    public void deleteAccountByUsername(@RequestParam String username) {
-        services.deleteAccountByUsername(username);
+        services.updateAccount(id, updateAccountRequest);
     }
 
     @DeleteMapping("/{id}")
     public void deleteAccount(@PathVariable UUID id) {
-        services.deleteAccountById(id);
-    }
-
-    @GetMapping("/balance")
-    public ViewBalanceResponse viewBalanceByUsername(@RequestParam String username) {
-        return services.viewBalanceByUsername(username);
+        services.deleteAccount(id);
     }
 
     @GetMapping("/{id}/balance")
@@ -63,13 +50,36 @@ public class AccountController {
         return services.viewBalance(id);
     }
 
+    @PostMapping("/{id}/transactions")
+    public void makeTransaction(@PathVariable UUID id, @Valid @RequestBody TransactionRequest transactionRequest) {
+        services.makeTransaction(id, transactionRequest);
+    }
+
+
+    //USERNAME BASED MAPPING:
+    @GetMapping
+    public ViewAccountResponse getAccountByUsername(@RequestParam String username) {
+        return services.getAccountByUsername(username);
+    }
+
+    @PatchMapping
+    public void updateAccountByUsername(@RequestParam String username, @RequestBody UpdateAccountRequest updateAccountRequest) {
+        services.updateAccountByUsername(username, updateAccountRequest);
+    }
+
+    @DeleteMapping
+    public void deleteAccountByUsername(@RequestParam String username) {
+        services.deleteAccountByUsername(username);
+    }
+
+    @GetMapping("/balance")
+    public ViewBalanceResponse viewBalanceByUsername(@RequestParam String username) {
+        return services.viewBalanceByUsername(username);
+    }
+
     @PostMapping("/transactions")
     public void makeTransactionByUsername(@RequestParam String username, @Valid @RequestBody TransactionRequest transactionRequest) {
         services.makeTransactionByUsername(username, transactionRequest);
     }
 
-    @PostMapping("/{id}/transactions")
-    public void makeTransaction(@PathVariable UUID id, @Valid @RequestBody TransactionRequest transactionRequest) {
-        services.makeTransaction(id, transactionRequest);
-    }
 }

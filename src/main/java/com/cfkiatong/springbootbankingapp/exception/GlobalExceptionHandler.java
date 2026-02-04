@@ -63,15 +63,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBusinessException(BusinessException businessException, HttpServletRequest request) {
         Class<?> businessExceptionClass = businessException.getClass();
 
-        HttpStatus status = HttpStatus.BAD_REQUEST;
-
-        status = switch (businessExceptionClass.getSimpleName()) {
-            case "InsufficientBalanceException" -> HttpStatus.UNPROCESSABLE_ENTITY;
-            case "AccountNotFoundException" -> HttpStatus.NOT_FOUND;
-            case "UsernameUnavailableException" -> HttpStatus.CONFLICT;
-            case "NoFieldUpdatedException" -> HttpStatus.UNPROCESSABLE_ENTITY;
-            default -> status;
-        };
+        HttpStatus status = businessException.getStatus();
 
         return new ResponseEntity<>(
                 buildApiError(status,
@@ -80,14 +72,5 @@ public class GlobalExceptionHandler {
                         null),
                 status);
     }
-
-//    @ExceptionHandler(IllegalArgumentException.class)
-//    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException argumentException) {
-//        Map<String, String> error = new HashMap<>();
-//
-//        error.put("error: ", argumentException.getMessage());
-//
-//        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-//    }
 
 }

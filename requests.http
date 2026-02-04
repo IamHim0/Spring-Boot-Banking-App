@@ -10,11 +10,42 @@ Content-Type: application/json
   "initialBalance": 1000
 }
 
+###Get account details using uId
+GET http://localhost:8080/api/v1/accounts/3b2f87da-5881-43ce-8280-d55cb1227d39
+
+###Update account fields using uId
+PATCH http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015
+Content-Type: application/json
+
+{
+}
+
+###Delete account using uId
+DELETE http://localhost:8080/api/v1/accounts/f75f605e-bcdf-430e-9a9d-b2172d3a2daa
+
+###Get account balance using uId
+GET http://localhost:8080/api/v1/accounts/8e71e605-9aea-43e5-b432-b72a1be05842/balance
+
+###Withdrawal transaction using uId
+POST http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015/transactions
+Content-Type: application/json
+
+{
+  "type": "WITHDRAWAL",
+  "amount": 5000
+}
+
+###Deposit transaction using uId
+POST http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015/transactions
+Content-Type: application/json
+
+{
+  "type": "DEPOSIT",
+  "amount": 500
+}
+
 ###Get account details using uName
 GET http://localhost:8080/api/v1/accounts?username=bingu
-
-###Get account details using uId
-GET http://localhost:8080/api/v1/accounts/1b2f87da-5881-43ce-8280-d55cb1227d39
 
 ###Update account fields using uName
 PATCH http://localhost:8080/api/v1/accounts?username=asdfasdf
@@ -27,28 +58,11 @@ Content-Type: application/json
   "newPassword": "asdf"
 }
 
-###Update account fields using uId
-PATCH http://localhost:8080/api/v1/accounts/1b2f87da-5881-43ce-8280-d55cb1227d39
-Content-Type: application/json
-
-{
-  "newFirstName": "zxcv",
-  "newLastName": "zxcv",
-  "newUsername": "zxcv",
-  "newPassword": "zxcv"
-}
-
 ###Delete account using uName
 DELETE http://localhost:8080/api/v1/accounts?username=zxcv
 
-###Delete account using uId
-DELETE http://localhost:8080/api/v1/accounts/f75f605e-bcdf-430e-9a9d-b2172d3a2daa
-
 ###Get account balance using uName
 GET http://localhost:8080/api/v1/accounts/balance?username=bingu
-
-###Get account balance using uId
-GET http://localhost:8080/api/v1/accounts/8e71e605-9aea-43e5-b432-b72a1be05842/balance
 
 ###Withdrawal transaction using uName
 POST http://localhost:8080/api/v1/accounts/transactions?username=dk
@@ -56,16 +70,7 @@ Content-Type: application/json
 
 {
   "type": "WITHDRAWAL",
-  "amount": 500
-}
-
-###Withdrawal transaction using uId
-POST http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015/transactions
-Content-Type: application/json
-
-{
-  "type": "WITHDRAWAL",
-  "amount": 100
+  "amount": 600
 }
 
 ###Deposit transaction using uName
@@ -75,13 +80,4 @@ Content-Type: application/json
 {
   "type": "DEPOSIT",
   "amount": 600
-}
-
-###Deposit transaction using uId
-POST http://localhost:8080/api/v1/accounts/8e71e605-9aea-43e5-b432-b72a1be05842/transactions
-Content-Type: application/json
-
-{
-  "type": "DEPOSIT",
-  "amount": 2000000
 }

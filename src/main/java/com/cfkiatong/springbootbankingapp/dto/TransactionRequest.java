@@ -8,18 +8,18 @@ import java.math.BigDecimal;
 
 public class TransactionRequest {
 
-    @NotBlank(message = "transaction type cannot be empty")
-    private String type;
+    @NotNull(message = "transaction type cannot be empty")
+    private TransactionType type;
 
     @NotNull(message = "transaction amount cannot be empty")
     @DecimalMin(value = "100", message = "transaction amount must be at least ₱ 100")
     private BigDecimal amount;
 
-    public String getType() {
+    public TransactionType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TransactionType type) {
         this.type = type;
     }
 
