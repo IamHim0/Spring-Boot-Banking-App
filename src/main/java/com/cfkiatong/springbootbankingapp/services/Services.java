@@ -70,6 +70,28 @@ public class Services {
     }
 
     @Transactional
+    public void updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
+        if (updateAccountRequest.getNewFirstName() == null && updateAccountRequest.getNewLastName() == null && updateAccountRequest.getNewUsername() == null && updateAccountRequest.getNewPassword() == null) {
+            throw new NoFieldUpdatedException();
+        }
+
+        Account account = findAccount(id);
+
+        if (updateAccountRequest.getNewFirstName() != null) {
+            account.setFirstName(updateAccountRequest.getNewFirstName());
+        }
+        if (updateAccountRequest.getNewLastName() != null) {
+            account.setLastName(updateAccountRequest.getNewLastName());
+        }
+        if (updateAccountRequest.getNewUsername() != null) {
+            account.setUsername(updateAccountRequest.getNewUsername());
+        }
+        if (updateAccountRequest.getNewPassword() != null) {
+            account.setPassword(updateAccountRequest.getNewPassword());
+        }
+    }
+
+    @Transactional
     public void deleteAccountByUsername(String username) {
         if (findAccount(username) != null) {
             accountRepository.deleteByUsername(username);
@@ -83,8 +105,16 @@ public class Services {
         }
     }
 
+    public ViewBalanceResponse viewBalanceByUsername(String username) {
+        return mapToViewBalanceResponse(findAccount(username));
+    }
+
+    public ViewBalanceResponse viewBalance(UUID id) {
+        return mapToViewBalanceResponse(findAccount(id));
+    }
+
     @Transactional
-    public void makeTransaction(String username, TransactionRequest transactionRequest) {
+    public void makeTransactionByUsername(String username, TransactionRequest transactionRequest) {
         Account account = findAccount(username);
 
         switch (transactionRequest.getType().toLowerCase()) {
@@ -102,10 +132,24 @@ public class Services {
         }
     }
 
-    public ViewBalanceResponse viewBalance(String username) {
-        return mapToViewBalanceResponse(findAccount(username));
-    }
+    @Transactional
+    public void makeTransaction(UUID id, TransactionRequest transactionRequest) {
+        Account account = findAccount(id);
 
+        switch (transactionRequest.getType().toLowerCase()) {
+            case "withdrawal":
+                if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+                    throw new InsufficientBalanceException();
+                }
+
+                account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
+
+                break;
+            case "deposit":
+                account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
+                break;
+        }
+    }
 
     private ViewAccountResponse mapToViewAccountResponse(Account account) {
         ViewAccountResponse accDTO = new ViewAccountResponse();

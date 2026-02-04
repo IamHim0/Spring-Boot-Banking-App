@@ -1,8 +1,5 @@
 package com.cfkiatong.springbootbankingapp;
 
-import com.cfkiatong.springbootbankingapp.ui.UserInterface;
-import com.cfkiatong.springbootbankingapp.ui.UserInterface.*;
-
 import org.apache.catalina.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 public class TransactionRequest {
 
-    @NotBlank
+    @NotBlank(message = "transaction type cannot be empty")
     private String type;
 
     @NotNull(message = "transaction amount cannot be empty")
