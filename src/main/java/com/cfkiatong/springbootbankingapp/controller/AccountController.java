@@ -4,9 +4,11 @@ import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
 import com.cfkiatong.springbootbankingapp.services.Services;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.UUID;
 
 @RestController
@@ -32,12 +34,14 @@ public class AccountController {
     }
 
     @PatchMapping("/{id}")
-    public ViewAccountResponse updateAccount(@PathVariable UUID id, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
+    public ResponseEntity<ViewAccountResponse> updateAccount(@PathVariable UUID id, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
         if (!updateAccountRequest.oneFieldPresent()) {
             throw new NoFieldUpdatedException();
         }
 
-        return services.updateAccount(id, updateAccountRequest);
+        ViewAccountResponse account = services.updateAccount(id, updateAccountRequest);
+
+        return ResponseEntity.created(URI.create("/api/v1/accounts/" + account.getId())).body(account);
     }
 
     @DeleteMapping("/{id}")
