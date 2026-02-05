@@ -7,7 +7,7 @@ Content-Type: application/json
   "lastName": "asdf",
   "username": "asdf",
   "password": "asdf",
-  "initialBalance": 1000
+  "initialDeposit": 1000
 }
 
 ###Get account details using uId
@@ -36,13 +36,82 @@ Content-Type: application/json
 }
 
 ###Deposit transaction using uId
-POST http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015/transactions
+POST http://localhost:8080/api/v1/accounts/c7174108-f6f6-454f-9799-e7bf4bd650bc/transactions
 Content-Type: application/json
 
 {
   "type": "DEPOSIT",
   "amount": 500
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###Get account details using uName
 GET http://localhost:8080/api/v1/accounts?username=bingu

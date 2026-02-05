@@ -30,7 +30,7 @@ public class Services {
     }
 
     //Write methods (save, delete, deleteById, etc.) are @Transactional by default
-    public void addAccount(CreateAccountRequest createAccountRequest) {
+    public ViewAccountResponse addAccount(CreateAccountRequest createAccountRequest) {
         if (accountRepository.findByUsername(createAccountRequest.getUsername()).isPresent()) {
             throw new UsernameUnavailableException(createAccountRequest.getUsername());
         }
@@ -42,8 +42,10 @@ public class Services {
                 createAccountRequest.getLastName(),
                 createAccountRequest.getUsername(),
                 hashedPassword,
-                createAccountRequest.getInitialBalance());
+                createAccountRequest.getInitialDeposit());
         accountRepository.save(account);
+
+        return mapToViewAccountResponse(account);
     }
 
     //ID BASED SERVICES
@@ -52,7 +54,7 @@ public class Services {
     }
 
     @Transactional
-    public void updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
+    public ViewAccountResponse updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
         Account account = findAccount(id);
 
         if (updateAccountRequest.getNewFirstName() != null) {
@@ -66,9 +68,11 @@ public class Services {
         }
         if (updateAccountRequest.getNewPassword() != null) {
             String hashedNewPassword = new BCryptPasswordEncoder().encode(updateAccountRequest.getNewPassword());
-            
+
             account.setPassword(hashedNewPassword);
         }
+
+        return mapToViewAccountResponse(account);
     }
 
     //Write methods (save, delete, deleteById, etc.) are @Transactional by default
@@ -78,8 +82,12 @@ public class Services {
         }
     }
 
+    public ViewBalanceResponse viewBalance(UUID id) {
+        return mapToViewBalanceResponse(findAccount(id));
+    }
+
     @Transactional
-    public void makeTransaction(UUID id, TransactionRequest transactionRequest) {
+    public ViewBalanceResponse makeTransaction(UUID id, TransactionRequest transactionRequest) {
         Account account = findAccount(id);
 
         switch (transactionRequest.getType()) {
@@ -95,70 +103,15 @@ public class Services {
                 account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
                 break;
         }
-    }
 
-    //USERNAME BASED SERVICES
-    public ViewAccountResponse getAccountByUsername(String username) {
-        return mapToViewAccountResponse(findAccount(username));
-    }
-
-    @Transactional
-    public void updateAccountByUsername(String username, UpdateAccountRequest updateAccountRequest) {
-
-        Account account = findAccount(username);
-
-        if (updateAccountRequest.getNewFirstName() != null) {
-            account.setFirstName(updateAccountRequest.getNewFirstName());
-        }
-        if (updateAccountRequest.getNewLastName() != null) {
-            account.setLastName(updateAccountRequest.getNewLastName());
-        }
-        if (updateAccountRequest.getNewUsername() != null) {
-            account.setUsername(updateAccountRequest.getNewUsername());
-        }
-        if (updateAccountRequest.getNewPassword() != null) {
-            account.setPassword(updateAccountRequest.getNewPassword());
-        }
-    }
-
-    @Transactional
-    public void deleteAccountByUsername(String username) {
-        if (findAccount(username) != null) {
-            accountRepository.deleteByUsername(username);
-        }
-    }
-
-    public ViewBalanceResponse viewBalanceByUsername(String username) {
-        return mapToViewBalanceResponse(findAccount(username));
-    }
-
-    public ViewBalanceResponse viewBalance(UUID id) {
-        return mapToViewBalanceResponse(findAccount(id));
-    }
-
-    @Transactional
-    public void makeTransactionByUsername(String username, TransactionRequest transactionRequest) {
-        Account account = findAccount(username);
-
-        switch (transactionRequest.getType()) {
-            case WITHDRAWAL:
-                if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
-                    throw new InsufficientBalanceException();
-                }
-
-                account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
-
-                break;
-            case DEPOSIT:
-                account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
-                break;
-        }
+        return mapToViewBalanceResponse(account);
     }
 
     //DTO MAPPING
     private ViewAccountResponse mapToViewAccountResponse(Account account) {
         ViewAccountResponse accDTO = new ViewAccountResponse();
 
+        accDTO.setId(account.getId());
         accDTO.setFirstName(account.getFirstName());
         accDTO.setLastName(account.getLastName());
         accDTO.setUsername(account.getUsername());
@@ -175,4 +128,58 @@ public class Services {
         return balanceDTO;
     }
 
+
+//    //USERNAME BASED SERVICES
+//    public ViewAccountResponse getAccountByUsername(String username) {
+//        return mapToViewAccountResponse(findAccount(username));
+//    }
+//
+//    @Transactional
+//    public void updateAccountByUsername(String username, UpdateAccountRequest updateAccountRequest) {
+//
+//        Account account = findAccount(username);
+//
+//        if (updateAccountRequest.getNewFirstName() != null) {
+//            account.setFirstName(updateAccountRequest.getNewFirstName());
+//        }
+//        if (updateAccountRequest.getNewLastName() != null) {
+//            account.setLastName(updateAccountRequest.getNewLastName());
+//        }
+//        if (updateAccountRequest.getNewUsername() != null) {
+//            account.setUsername(updateAccountRequest.getNewUsername());
+//        }
+//        if (updateAccountRequest.getNewPassword() != null) {
+//            account.setPassword(updateAccountRequest.getNewPassword());
+//        }
+//    }
+//
+//    @Transactional
+//    public void deleteAccountByUsername(String username) {
+//        if (findAccount(username) != null) {
+//            accountRepository.deleteByUsername(username);
+//        }
+//    }
+//
+//    public ViewBalanceResponse viewBalanceByUsername(String username) {
+//        return mapToViewBalanceResponse(findAccount(username));
+//    }
+//
+//    @Transactional
+//    public void makeTransactionByUsername(String username, TransactionRequest transactionRequest) {
+//        Account account = findAccount(username);
+//
+//        switch (transactionRequest.getType()) {
+//            case WITHDRAWAL:
+//                if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+//                    throw new InsufficientBalanceException();
+//                }
+//
+//                account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
+//
+//                break;
+//            case DEPOSIT:
+//                account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
+//                break;
+//        }
+//    }
 }

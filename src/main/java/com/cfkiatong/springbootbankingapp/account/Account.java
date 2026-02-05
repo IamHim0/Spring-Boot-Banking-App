@@ -17,20 +17,20 @@ public class Account {
     @Column(nullable = false, unique = true)
     private String username;
     private String password;
-    private BigDecimal initialBalance;
+    private BigDecimal initialDeposit;
     private BigDecimal balance;
 
     protected Account() {
 
     }
 
-    public Account(String firstName, String lastName, String username, String password, BigDecimal initialBalance) {
+    public Account(String firstName, String lastName, String username, String password, BigDecimal initialDeposit) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
-        this.initialBalance = initialBalance;
-        this.balance = initialBalance;
+        this.initialDeposit = initialDeposit;
+        this.balance = initialDeposit;
     }
 
     public UUID getId() {
@@ -69,12 +69,12 @@ public class Account {
         this.password = password;
     }
 
-    public BigDecimal getInitialBalance() {
-        return initialBalance;
+    public BigDecimal getInitialDeposit() {
+        return initialDeposit;
     }
 
-    public void setInitialBalance(BigDecimal initialBalance) {
-        this.initialBalance = initialBalance;
+    public void setInitialDeposit(BigDecimal initialDeposit) {
+        this.initialDeposit = initialDeposit;
     }
 
     public BigDecimal getBalance() {

@@ -19,7 +19,7 @@ public class CreateAccountRequest {
     private String password;
     @NotNull(message = "initial deposit cannot be empty ")
     @DecimalMin(value = "1000", message = "initial deposit must be at least ₱ 1000")
-    private BigDecimal initialBalance;
+    private BigDecimal initialDeposit;
 
     public String getFirstName() {
         return firstName;
@@ -53,12 +53,12 @@ public class CreateAccountRequest {
         this.password = password;
     }
 
-    public BigDecimal getInitialBalance() {
-        return initialBalance;
+    public BigDecimal getInitialDeposit() {
+        return initialDeposit;
     }
 
-    public void setInitialBalance(BigDecimal initialBalance) {
-        this.initialBalance = initialBalance;
+    public void setInitialDeposit(BigDecimal initialDeposit) {
+        this.initialDeposit = initialDeposit;
     }
 
 }

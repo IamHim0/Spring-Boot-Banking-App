@@ -1,13 +1,23 @@
 package com.cfkiatong.springbootbankingapp.dto;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class ViewAccountResponse {
 
+    private UUID id;
     private String firstName;
     private String lastName;
     private String username;
     private BigDecimal balance;
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     public String getFirstName() {
         return firstName;
@@ -40,4 +50,5 @@ public class ViewAccountResponse {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
+
 }
