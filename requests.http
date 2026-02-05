@@ -3,18 +3,18 @@ POST http://localhost:8080/api/v1/accounts
 Content-Type: application/json
 
 {
-  "firstName": "D",
-  "lastName": "K",
-  "username": "dk",
-  "password": "dk",
+  "firstName": "asdf",
+  "lastName": "asdf",
+  "username": "asdf",
+  "password": "asdf",
   "initialBalance": 1000
 }
 
 ###Get account details using uId
-GET http://localhost:8080/api/v1/accounts/3b2f87da-5881-43ce-8280-d55cb1227d39
+GET http://localhost:8080/api/v1/accounts/8e71e605-9aea-43e5-b432-b72a1be05842
 
 ###Update account fields using uId
-PATCH http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015
+PATCH http://localhost:8080/api/v1/accounts/c7174108-f6f6-454f-9799-e7bf4bd650bc
 Content-Type: application/json
 
 {

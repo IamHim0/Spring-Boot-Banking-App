@@ -4,9 +4,9 @@ import com.cfkiatong.springbootbankingapp.account.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
-import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
 import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,14 @@ public class Services {
             throw new UsernameUnavailableException(createAccountRequest.getUsername());
         }
 
-        Account account = new Account(createAccountRequest.getFirstName(), createAccountRequest.getLastName(), createAccountRequest.getUsername(), createAccountRequest.getPassword(), createAccountRequest.getInitialBalance());
+        String hashedPassword = new BCryptPasswordEncoder().encode(createAccountRequest.getPassword());
+
+        Account account = new Account(
+                createAccountRequest.getFirstName(),
+                createAccountRequest.getLastName(),
+                createAccountRequest.getUsername(),
+                hashedPassword,
+                createAccountRequest.getInitialBalance());
         accountRepository.save(account);
     }
 
@@ -58,7 +65,9 @@ public class Services {
             account.setUsername(updateAccountRequest.getNewUsername());
         }
         if (updateAccountRequest.getNewPassword() != null) {
-            account.setPassword(updateAccountRequest.getNewPassword());
+            String hashedNewPassword = new BCryptPasswordEncoder().encode(updateAccountRequest.getNewPassword());
+            
+            account.setPassword(hashedNewPassword);
         }
     }
 

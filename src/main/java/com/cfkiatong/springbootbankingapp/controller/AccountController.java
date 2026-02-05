@@ -19,6 +19,12 @@ public class AccountController {
         this.services = services;
     }
 
+    //Homepage testing
+    @GetMapping("/error")
+    public String greetError() {
+        return "Hello World! This is the error fallback!";
+    }
+
     //Create Account
     @PostMapping
     public void addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
