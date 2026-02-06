@@ -149,11 +149,10 @@ public class Services {
     }
 
 
-    //USERNAME BASED SERVICES
-    public ViewAccountResponse getAccountByUsername(String username) {
-        return mapToViewAccountResponse(findAccount(username));
-    }
-
+//    //USERNAME BASED SERVICES
+//    public ViewAccountResponse getAccountByUsername(String username) {
+//        return mapToViewAccountResponse(findAccount(username));
+//    }
 //
 //    @Transactional
 //    public void updateAccountByUsername(String username, UpdateAccountRequest updateAccountRequest) {
