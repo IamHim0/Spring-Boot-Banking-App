@@ -1,4 +1,4 @@
-package com.cfkiatong.springbootbankingapp.account;
+package com.cfkiatong.springbootbankingapp.entity;
 
 import jakarta.persistence.*;
 

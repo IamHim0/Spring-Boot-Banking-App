@@ -1,7 +1,8 @@
 package com.cfkiatong.springbootbankingapp.services;
 
-import com.cfkiatong.springbootbankingapp.account.Account;
+import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
+import com.cfkiatong.springbootbankingapp.entity.Transaction;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
 import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
@@ -147,7 +148,6 @@ public class Services {
 
         return balanceDTO;
     }
-
 
 //    //USERNAME BASED SERVICES
 //    public ViewAccountResponse getAccountByUsername(String username) {
