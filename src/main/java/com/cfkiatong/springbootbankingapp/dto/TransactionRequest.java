@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class TransactionRequest {
 
@@ -14,6 +15,8 @@ public class TransactionRequest {
     @NotNull(message = "transaction amount cannot be empty")
     @DecimalMin(value = "100", message = "transaction amount must be at least ₱ 100")
     private BigDecimal amount;
+
+    private String targetAccountUsername;
 
     public TransactionType getType() {
         return type;
@@ -29,5 +32,13 @@ public class TransactionRequest {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getTargetAccountUsername() {
+        return targetAccountUsername;
+    }
+
+    public void setTargetAccountUsername(String targetAccountUsername) {
+        this.targetAccountUsername = targetAccountUsername;
     }
 }

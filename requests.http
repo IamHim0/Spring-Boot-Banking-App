@@ -44,6 +44,17 @@ Content-Type: application/json
   "amount": 500
 }
 
+###Transfer transaction using uId
+POST http://localhost:8080/api/v1/accounts/e86264e0-295b-46fc-a7ef-5995efa1a015/transactions
+Content-Type: application/json
+
+{
+  "type": "TRANSFER",
+  "targetAccountUsername": "qwer",
+  "amount": 500
+}
+
+
 
 
 

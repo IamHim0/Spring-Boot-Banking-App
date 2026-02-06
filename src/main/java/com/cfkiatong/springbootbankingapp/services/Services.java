@@ -10,7 +10,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Service
 public class Services {
@@ -90,17 +93,34 @@ public class Services {
     public ViewBalanceResponse makeTransaction(UUID id, TransactionRequest transactionRequest) {
         Account account = findAccount(id);
 
+        Consumer<BigDecimal> withdraw = amount -> {
+            if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+                throw new InsufficientBalanceException();
+            }
+
+            account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
+        };
+
+        BiConsumer<BigDecimal, Account> depositTo = (amount, targetAccount) -> {
+            targetAccount.setBalance(targetAccount.getBalance().add(transactionRequest.getAmount()));
+        };
+
         switch (transactionRequest.getType()) {
             case WITHDRAWAL:
-                if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
-                    throw new InsufficientBalanceException();
-                }
-
-                account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
+                withdraw.accept(transactionRequest.getAmount());
 
                 break;
             case DEPOSIT:
-                account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
+                depositTo.accept(transactionRequest.getAmount(), account);
+
+                break;
+            case TRANSFER:
+                withdraw.accept(transactionRequest.getAmount());
+
+                Account targetAccount = findAccount(transactionRequest.getTargetAccountUsername());
+
+                depositTo.accept(transactionRequest.getAmount(), targetAccount);
+
                 break;
         }
 
@@ -129,10 +149,11 @@ public class Services {
     }
 
 
-//    //USERNAME BASED SERVICES
-//    public ViewAccountResponse getAccountByUsername(String username) {
-//        return mapToViewAccountResponse(findAccount(username));
-//    }
+    //USERNAME BASED SERVICES
+    public ViewAccountResponse getAccountByUsername(String username) {
+        return mapToViewAccountResponse(findAccount(username));
+    }
+
 //
 //    @Transactional
 //    public void updateAccountByUsername(String username, UpdateAccountRequest updateAccountRequest) {

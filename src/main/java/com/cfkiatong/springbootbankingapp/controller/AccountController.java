@@ -2,6 +2,7 @@ package com.cfkiatong.springbootbankingapp.controller;
 
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
+import com.cfkiatong.springbootbankingapp.exception.business.NoTargetAccountException;
 import com.cfkiatong.springbootbankingapp.services.Services;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,10 @@ public class AccountController {
 
     @PostMapping("/{id}/transactions")
     public ViewBalanceResponse makeTransaction(@PathVariable UUID id, @Valid @RequestBody TransactionRequest transactionRequest) {
+        if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountUsername() == null) {
+            throw new NoTargetAccountException();
+        }
+
         return services.makeTransaction(id, transactionRequest);
     }
 
