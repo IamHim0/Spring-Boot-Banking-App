@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ###Delete account using uId
-DELETE http://localhost:8080/api/v1/accounts/f75f605e-bcdf-430e-9a9d-b2172d3a2daa
+DELETE http://localhost:8080/api/v1/accounts/0f737fab-3663-4fa0-9986-264a5560ba77
 
 ###Get account balance using uId
 GET http://localhost:8080/api/v1/accounts/8e71e605-9aea-43e5-b432-b72a1be05842/balance

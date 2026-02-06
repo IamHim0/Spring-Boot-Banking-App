@@ -30,12 +30,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> handleHttpMessageNotReadableException(HttpMessageNotReadableException httpMessageNotReadableException, HttpServletRequest request) {
-        return new ResponseEntity<>(
-                buildApiError(HttpStatus.BAD_REQUEST,
-                        httpMessageNotReadableException.getMessage(),
-                        request.getRequestURI(),
-                        null),
-                HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(buildApiError(HttpStatus.BAD_REQUEST,
+                httpMessageNotReadableException.getMessage(),
+                request.getRequestURI(),
+                null));
     }
 
     //Handles validation errors from @Valid or @Validated
@@ -53,10 +51,10 @@ public class GlobalExceptionHandler {
             validationErrors.add(validationError);
         });
 
-        return new ResponseEntity<>(buildApiError(HttpStatus.BAD_REQUEST,
+        return ResponseEntity.badRequest().body(buildApiError(HttpStatus.BAD_REQUEST,
                 validationExceptions.getMessage(),
                 request.getRequestURI(),
-                validationErrors), HttpStatus.BAD_REQUEST);
+                validationErrors));
     }
 
     @ExceptionHandler(BusinessException.class)
@@ -65,12 +63,10 @@ public class GlobalExceptionHandler {
 
         HttpStatus status = businessException.getStatus();
 
-        return new ResponseEntity<>(
-                buildApiError(status,
-                        businessException.getMessage(),
-                        request.getRequestURI(),
-                        null),
-                status);
+        return ResponseEntity.status(status).body(buildApiError(status,
+                businessException.getMessage(),
+                request.getRequestURI(),
+                null));
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.View;
 import java.net.URI;
 import java.util.UUID;
 
@@ -23,14 +24,18 @@ public class AccountController {
 
     //Create Account
     @PostMapping
-    public ViewAccountResponse addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
-        return services.addAccount(createAccountRequest);
+    public ResponseEntity<ViewAccountResponse> addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
+        ViewAccountResponse accountResponse = services.addAccount(createAccountRequest);
+
+        return ResponseEntity.created(URI.create("/api/v1/accounts/" + accountResponse.getId())).body(accountResponse);
     }
 
     //ID BASED MAPPING:
     @GetMapping("/{id}")
-    public ViewAccountResponse getAccount(@PathVariable UUID id) {
-        return services.getAccount(id);
+    public ResponseEntity<ViewAccountResponse> getAccount(@PathVariable UUID id) {
+        ViewAccountResponse accountResponse = services.getAccount(id);
+
+        return ResponseEntity.ok(accountResponse);
     }
 
     @PatchMapping("/{id}")
@@ -39,19 +44,23 @@ public class AccountController {
             throw new NoFieldUpdatedException();
         }
 
-        ViewAccountResponse account = services.updateAccount(id, updateAccountRequest);
+        ViewAccountResponse updatedAccount = services.updateAccount(id, updateAccountRequest);
 
-        return ResponseEntity.created(URI.create("/api/v1/accounts/" + account.getId())).body(account);
+        return ResponseEntity.ok(updatedAccount);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAccount(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable UUID id) {
         services.deleteAccount(id);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/balance")
-    public ViewBalanceResponse viewBalance(@PathVariable UUID id) {
-        return services.viewBalance(id);
+    public ResponseEntity<ViewBalanceResponse> viewBalance(@PathVariable UUID id) {
+        ViewBalanceResponse balanceResponse = services.viewBalance(id);
+
+        return ResponseEntity.ok(balanceResponse);
     }
 
     @PostMapping("/{id}/transactions")
