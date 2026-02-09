@@ -65,12 +65,14 @@ public class AccountController {
     }
 
     @PostMapping("/{id}/transactions")
-    public ViewBalanceResponse makeTransaction(@PathVariable UUID id, @Valid @RequestBody TransactionRequest transactionRequest) {
+    public ResponseEntity<ViewBalanceResponse> makeTransaction(@PathVariable UUID id, @Valid @RequestBody TransactionRequest transactionRequest) {
         if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountUsername() == null) {
             throw new NoTargetAccountException();
         }
 
-        return services.makeTransaction(id, transactionRequest);
+        ViewBalanceResponse transactionResponse = services.makeTransaction(id, transactionRequest);
+
+        return ResponseEntity.ok(transactionResponse);
     }
 
 }

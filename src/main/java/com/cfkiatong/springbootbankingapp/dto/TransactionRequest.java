@@ -41,4 +41,5 @@ public class TransactionRequest {
     public void setTargetAccountUsername(String targetAccountUsername) {
         this.targetAccountUsername = targetAccountUsername;
     }
+    
 }

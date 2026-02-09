@@ -117,7 +117,6 @@ public class Services {
             targetAccount.setBalance(targetAccount.getBalance().add(transactionRequest.getAmount()));
         };
 
-
         switch (type) {
             case WITHDRAWAL:
                 withdraw.accept(transactionRequest.getAmount());
