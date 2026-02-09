@@ -73,30 +73,4 @@ public class AccountController {
         return services.makeTransaction(id, transactionRequest);
     }
 
-//    //USERNAME BASED MAPPING:
-//    @GetMapping
-//    public ViewAccountResponse getAccountByUsername(@RequestParam String username) {
-//        return services.getAccountByUsername(username);
-//    }
-//
-//    @PatchMapping
-//    public void updateAccountByUsername(@RequestParam String username, @RequestBody UpdateAccountRequest updateAccountRequest) {
-//        services.updateAccountByUsername(username, updateAccountRequest);
-//    }
-//
-//    @DeleteMapping
-//    public void deleteAccountByUsername(@RequestParam String username) {
-//        services.deleteAccountByUsername(username);
-//    }
-//
-//    @GetMapping("/balance")
-//    public ViewBalanceResponse viewBalanceByUsername(@RequestParam String username) {
-//        return services.viewBalanceByUsername(username);
-//    }
-//
-//    @PostMapping("/transactions")
-//    public void makeTransactionByUsername(@RequestParam String username, @Valid @RequestBody TransactionRequest transactionRequest) {
-//        services.makeTransactionByUsername(username, transactionRequest);
-//    }
-
 }

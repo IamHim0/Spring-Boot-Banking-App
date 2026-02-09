@@ -56,7 +56,6 @@ public class Services {
         return mapToViewAccountResponse(account);
     }
 
-    //ID BASED SERVICES
     public ViewAccountResponse getAccount(UUID id) {
         return mapToViewAccountResponse(findAccount(id));
     }
@@ -96,11 +95,13 @@ public class Services {
 
     @Transactional
     public ViewBalanceResponse makeTransaction(UUID id, TransactionRequest transactionRequest) {
-        TransactionType type = null;
+        TransactionType type = transactionRequest.getType();
+
         Account account = findAccount(id);
         UUID targetAccId = null;
+
         BigDecimal sourceBalanceBefore = account.getBalance();
-        BigDecimal sourceBalanceAfter = account.getBalance();
+
         BigDecimal targetBalanceBefore = null;
         BigDecimal targetBalanceAfter = null;
 
@@ -117,26 +118,17 @@ public class Services {
         };
 
 
-        switch (transactionRequest.getType()) {
+        switch (type) {
             case WITHDRAWAL:
-                type = TransactionType.WITHDRAWAL;
-
                 withdraw.accept(transactionRequest.getAmount());
-                sourceBalanceAfter = account.getBalance();
 
                 break;
             case DEPOSIT:
-                type = TransactionType.DEPOSIT;
-
                 depositTo.accept(account);
-                sourceBalanceAfter = account.getBalance();
 
                 break;
             case TRANSFER:
-                type = TransactionType.TRANSFER;
-
                 withdraw.accept(transactionRequest.getAmount());
-                sourceBalanceAfter = account.getBalance();
 
                 Account targetAccount = findAccount(transactionRequest.getTargetAccountUsername());
                 targetAccId = targetAccount.getId();
@@ -155,7 +147,7 @@ public class Services {
                 targetAccId,
                 transactionRequest.getAmount(),
                 sourceBalanceBefore,
-                sourceBalanceAfter,
+                account.getBalance(),
                 targetBalanceBefore,
                 targetBalanceAfter);
 
@@ -185,57 +177,4 @@ public class Services {
         return balanceDTO;
     }
 
-//    //USERNAME BASED SERVICES
-//    public ViewAccountResponse getAccountByUsername(String username) {
-//        return mapToViewAccountResponse(findAccount(username));
-//    }
-//
-//    @Transactional
-//    public void updateAccountByUsername(String username, UpdateAccountRequest updateAccountRequest) {
-//
-//        Account account = findAccount(username);
-//
-//        if (updateAccountRequest.getNewFirstName() != null) {
-//            account.setFirstName(updateAccountRequest.getNewFirstName());
-//        }
-//        if (updateAccountRequest.getNewLastName() != null) {
-//            account.setLastName(updateAccountRequest.getNewLastName());
-//        }
-//        if (updateAccountRequest.getNewUsername() != null) {
-//            account.setUsername(updateAccountRequest.getNewUsername());
-//        }
-//        if (updateAccountRequest.getNewPassword() != null) {
-//            account.setPassword(updateAccountRequest.getNewPassword());
-//        }
-//    }
-//
-//    @Transactional
-//    public void deleteAccountByUsername(String username) {
-//        if (findAccount(username) != null) {
-//            accountRepository.deleteByUsername(username);
-//        }
-//    }
-//
-//    public ViewBalanceResponse viewBalanceByUsername(String username) {
-//        return mapToViewBalanceResponse(findAccount(username));
-//    }
-//
-//    @Transactional
-//    public void makeTransactionByUsername(String username, TransactionRequest transactionRequest) {
-//        Account account = findAccount(username);
-//
-//        switch (transactionRequest.getType()) {
-//            case WITHDRAWAL:
-//                if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
-//                    throw new InsufficientBalanceException();
-//                }
-//
-//                account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
-//
-//                break;
-//            case DEPOSIT:
-//                account.setBalance(account.getBalance().add(transactionRequest.getAmount()));
-//                break;
-//        }
-//    }
 }
