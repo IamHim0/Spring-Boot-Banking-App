@@ -1,19 +1,21 @@
 package com.cfkiatong.springbootbankingapp.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.cfkiatong.springbootbankingapp.dto.TransactionType;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 public class Transaction {
 
+    private LocalDateTime timestamp;
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID transactionId;
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
     private UUID sourceAccount;
     private UUID targetAccount;
     private BigDecimal transactionAmount;
@@ -26,12 +28,33 @@ public class Transaction {
 
     }
 
-    public Transaction(UUID sourceAccount, BigDecimal transactionAmount, UUID targetAccount, BigDecimal sourceBalanceBefore, BigDecimal sourceBalanceAfter) {
+    public Transaction(LocalDateTime timestamp,
+                       TransactionType type,
+                       UUID sourceAccount,
+                       UUID targetAccount,
+                       BigDecimal transactionAmount,
+                       BigDecimal sourceBalanceBefore,
+                       BigDecimal sourceBalanceAfter,
+                       BigDecimal targetBalanceBefore,
+                       BigDecimal targetBalanceAfter) {
+
+        this.timestamp = timestamp;
+        this.type = type;
         this.sourceAccount = sourceAccount;
-        this.transactionAmount = transactionAmount;
         this.targetAccount = targetAccount;
+        this.transactionAmount = transactionAmount;
         this.sourceBalanceBefore = sourceBalanceBefore;
         this.sourceBalanceAfter = sourceBalanceAfter;
+        this.targetBalanceBefore = targetBalanceBefore;
+        this.targetBalanceAfter = targetBalanceAfter;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
     public UUID getTransactionId() {
@@ -42,12 +65,12 @@ public class Transaction {
         this.transactionId = transactionId;
     }
 
-    public UUID getTargetAccount() {
-        return targetAccount;
+    public TransactionType getType() {
+        return type;
     }
 
-    public void setTargetAccount(UUID targetAccount) {
-        this.targetAccount = targetAccount;
+    public void setType(TransactionType type) {
+        this.type = type;
     }
 
     public UUID getSourceAccount() {
@@ -56,6 +79,14 @@ public class Transaction {
 
     public void setSourceAccount(UUID sourceAccount) {
         this.sourceAccount = sourceAccount;
+    }
+
+    public UUID getTargetAccount() {
+        return targetAccount;
+    }
+
+    public void setTargetAccount(UUID targetAccount) {
+        this.targetAccount = targetAccount;
     }
 
     public BigDecimal getTransactionAmount() {
@@ -94,7 +125,7 @@ public class Transaction {
         return targetBalanceAfter;
     }
 
-    public void setTargetBalanceAfter(BigDecimal getTargetBalanceAfter) {
-        this.targetBalanceAfter = getTargetBalanceAfter;
+    public void setTargetBalanceAfter(BigDecimal targetBalanceAfter) {
+        this.targetBalanceAfter = targetBalanceAfter;
     }
 }

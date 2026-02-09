@@ -36,7 +36,7 @@ Content-Type: application/json
 }
 
 ###Deposit transaction using uId
-POST http://localhost:8080/api/v1/accounts/c7174108-f6f6-454f-9799-e7bf4bd650bc/transactions
+POST http://localhost:8080/api/v1/accounts/8e71e605-9aea-43e5-b432-b72a1be05842/transactions
 Content-Type: application/json
 
 {

@@ -7,11 +7,13 @@ import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundExce
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
 import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
+import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -20,9 +22,11 @@ import java.util.function.Consumer;
 public class Services {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
-    public Services(AccountRepository accountRepository) {
+    public Services(AccountRepository accountRepository, TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     private Account findAccount(String username) {
@@ -92,7 +96,13 @@ public class Services {
 
     @Transactional
     public ViewBalanceResponse makeTransaction(UUID id, TransactionRequest transactionRequest) {
+        TransactionType type = null;
         Account account = findAccount(id);
+        UUID targetAccId = null;
+        BigDecimal sourceBalanceBefore = account.getBalance();
+        BigDecimal sourceBalanceAfter = account.getBalance();
+        BigDecimal targetBalanceBefore = null;
+        BigDecimal targetBalanceAfter = null;
 
         Consumer<BigDecimal> withdraw = amount -> {
             if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
@@ -102,28 +112,54 @@ public class Services {
             account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
         };
 
-        BiConsumer<BigDecimal, Account> depositTo = (amount, targetAccount) -> {
+        Consumer<Account> depositTo = (targetAccount) -> {
             targetAccount.setBalance(targetAccount.getBalance().add(transactionRequest.getAmount()));
         };
 
+
         switch (transactionRequest.getType()) {
             case WITHDRAWAL:
+                type = TransactionType.WITHDRAWAL;
+
                 withdraw.accept(transactionRequest.getAmount());
+                sourceBalanceAfter = account.getBalance();
 
                 break;
             case DEPOSIT:
-                depositTo.accept(transactionRequest.getAmount(), account);
+                type = TransactionType.DEPOSIT;
+
+                depositTo.accept(account);
+                sourceBalanceAfter = account.getBalance();
 
                 break;
             case TRANSFER:
+                type = TransactionType.TRANSFER;
+
                 withdraw.accept(transactionRequest.getAmount());
+                sourceBalanceAfter = account.getBalance();
 
                 Account targetAccount = findAccount(transactionRequest.getTargetAccountUsername());
+                targetAccId = targetAccount.getId();
+                targetBalanceBefore = targetAccount.getBalance();
 
-                depositTo.accept(transactionRequest.getAmount(), targetAccount);
+                depositTo.accept(targetAccount);
+                targetBalanceAfter = targetAccount.getBalance();
 
                 break;
         }
+
+        Transaction transaction = new Transaction(
+                LocalDateTime.now(),
+                type,
+                account.getId(),
+                targetAccId,
+                transactionRequest.getAmount(),
+                sourceBalanceBefore,
+                sourceBalanceAfter,
+                targetBalanceBefore,
+                targetBalanceAfter);
+
+        transactionRepository.save(transaction);
 
         return mapToViewBalanceResponse(account);
     }
