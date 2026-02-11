@@ -9,13 +9,13 @@ import java.util.UUID;
 
 public class CreateAccountRequest {
 
-    @NotBlank(message = "first name must not be empty")
+    @NotBlank(message = "first name field cannot be empty")
     private String firstName;
-    @NotBlank(message = "last name must not be empty")
+    @NotBlank(message = "last name field cannot be empty")
     private String lastName;
-    @NotBlank(message = "username must not be empty")
+    @NotBlank(message = "username field cannot be empty")
     private String username;
-    @NotBlank(message = "password must not be empty")
+    @NotBlank(message = "password field cannot be empty")
     private String password;
     @NotNull(message = "initial deposit cannot be empty ")
     @DecimalMin(value = "1000", message = "initial deposit must be at least ₱ 1000")
