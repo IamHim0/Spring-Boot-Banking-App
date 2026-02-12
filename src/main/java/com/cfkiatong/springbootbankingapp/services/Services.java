@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Service
@@ -43,13 +42,11 @@ public class Services {
             throw new UsernameUnavailableException(createAccountRequest.getUsername());
         }
 
-        String hashedPassword = new BCryptPasswordEncoder().encode(createAccountRequest.getPassword());
-
         Account account = new Account(
                 createAccountRequest.getFirstName(),
                 createAccountRequest.getLastName(),
                 createAccountRequest.getUsername(),
-                hashedPassword,
+                new BCryptPasswordEncoder().encode(createAccountRequest.getPassword()),
                 createAccountRequest.getInitialDeposit());
         accountRepository.save(account);
 
