@@ -37,16 +37,31 @@ public class JwtService {
     public String generateToken(String id) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
-                .claims()
-                .add(claims)
                 .subject(id)
+                .claim("roles", List.of("admin") )
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000 * 2))
-                .and()
                 .signWith(getKey())
                 .compact();
-
+//                .claims()
+//                .add(claims)
+//                .subject(id)
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000 * 2))
+//                .and() .signWith(getKey())
+//                .compact();
     }
+
+
+
+    public Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
 
     private Key getKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretkey);
@@ -60,14 +75,6 @@ public class JwtService {
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
         final Claims claims = extractAllClaims(token);
         return claimResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith((SecretKey) getKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
     }
 
     public boolean validateToken(String token, UserPrincipal userPrincipal) {
