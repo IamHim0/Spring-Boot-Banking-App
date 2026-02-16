@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -57,6 +59,10 @@ public class TransactionService {
         return mapToViewAccountResponse(findAccount(id));
     }
 
+    public TransactionHistoryResponse getTransactions(UUID id){
+        return mapToTransactionHistoryReponse(findAccount(id));
+    }
+
     @Transactional
     public ViewAccountResponse updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
         Account account = findAccount(id);
@@ -81,9 +87,7 @@ public class TransactionService {
 
     //Write methods (save, delete, deleteById, etc.) are @Transactional by default
     public void deleteAccount(UUID id) {
-        if (findAccount(id) != null) {
-            accountRepository.deleteById(id);
-        }
+        accountRepository.deleteById(id);
     }
 
     public ViewBalanceResponse viewBalance(UUID id) {
@@ -152,6 +156,30 @@ public class TransactionService {
         return mapToViewBalanceResponse(account);
     }
 
+    //ADMIN METHODS
+    public  AdminTransactionHistoryResponse getTransactionHistory(){
+        List<Transaction> transactions = transactionRepository.findAll();
+
+        List<AdminTransactionDTO> dtos = transactions.stream()
+                .map(transaction ->
+                        new AdminTransactionDTO(
+                                transaction.getTimestamp(),
+                                transaction.getTransactionId(),
+                                transaction.getType(),
+                                transaction.getSourceAccount(),
+                                transaction.getTargetAccount(),
+                                transaction.getTransactionAmount(),
+                                transaction.getSourceBalanceBefore(),
+                                transaction.getSourceBalanceAfter(),
+                                transaction.getTargetBalanceBefore(),
+                                transaction.getTargetBalanceAfter()
+
+                        ))
+                .toList();
+
+        return new AdminTransactionHistoryResponse(dtos);
+    }
+
     //DTO MAPPING
     private ViewAccountResponse mapToViewAccountResponse(Account account) {
         ViewAccountResponse accDTO = new ViewAccountResponse();
@@ -163,6 +191,24 @@ public class TransactionService {
         accDTO.setBalance(account.getBalance());
 
         return accDTO;
+    }
+
+    private TransactionHistoryResponse mapToTransactionHistoryReponse(Account  account) {
+        List<Transaction> transactions = transactionRepository.findBySourceAccount(account.getId());
+
+        List<TransactionDTO> transactionDTOs = transactions.stream()
+                .map(transaction -> new TransactionDTO(
+                        transaction.getTimestamp(),
+                        transaction.getTransactionId(),
+                        transaction.getType(),
+                        transaction.getSourceAccount(),
+                        transaction.getTransactionAmount(),
+                        transaction.getSourceBalanceBefore(),
+                        transaction.getSourceBalanceAfter()
+                        ))
+                .toList();
+
+        return new TransactionHistoryResponse(transactionDTOs);
     }
 
     private ViewBalanceResponse mapToViewBalanceResponse(Account account) {
