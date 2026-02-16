@@ -11,24 +11,28 @@ import java.util.UUID;
 
 public class UserPrincipal implements UserDetails {
 
-    private final Account account;
+    private final UUID id;
+    private final String username;
+    private final String password;
 
     public UserPrincipal(Account account) {
-        this.account = account;
+        this.id = account.getId();
+        this.username = account.getUsername();
+        this.password = account.getPassword();
     }
 
     public UUID getId() {
-        return account.getId();
+        return id;
     }
 
     @Override
     public String getUsername() {
-        return account.getUsername();
+        return username;
     }
 
     @Override
     public @Nullable String getPassword() {
-        return account.getPassword();
+        return password;
     }
 
     @Override

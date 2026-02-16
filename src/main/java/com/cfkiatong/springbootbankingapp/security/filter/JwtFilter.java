@@ -1,17 +1,12 @@
 package com.cfkiatong.springbootbankingapp.security.filter;
-import com.cfkiatong.springbootbankingapp.entity.Account;
-import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.security.JwtService;
-import com.cfkiatong.springbootbankingapp.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -22,14 +17,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private JwtService jwtService;
     AccountRepository accountRepository;
 
-    JwtFilter(JwtService jwtService, ApplicationContext context, AccountRepository accountRepository) {
+    JwtFilter(JwtService jwtService, AccountRepository accountRepository) {
         this.jwtService = jwtService;
         this.accountRepository = accountRepository; }
 

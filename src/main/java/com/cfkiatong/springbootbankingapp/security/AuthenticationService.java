@@ -8,7 +8,6 @@ import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,27 +19,25 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    private final AccountRepository accountRepository;
-
     public AuthenticationService(
             AuthenticationManager authenticationManager,
-            JwtService jwtService,
-            AccountRepository accountRepository) {
+            JwtService jwtService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
-        this.accountRepository = accountRepository;
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
-        Account account = accountRepository.findByUsername(authenticationRequest.getUsername()).orElseThrow(() -> new AccountNotFoundException(authenticationRequest.getUsername()));
 
         Authentication authentication =
                 authenticationManager.
                         authenticate(new UsernamePasswordAuthenticationToken(
                                 authenticationRequest.getUsername(),
                                 authenticationRequest.getPassword()));
+
+        UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+
         if (authentication.isAuthenticated()) {
-            return mapToAuthenticationResponse(jwtService.generateToken(account.getId().toString()));
+            return mapToAuthenticationResponse(jwtService.generateToken(principal.getId().toString()));
         } else {
             return null;
         }
