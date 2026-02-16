@@ -1,16 +1,11 @@
-package com.cfkiatong.springbootbankingapp.security;
+package com.cfkiatong.springbootbankingapp.authentication;
 
-import com.cfkiatong.springbootbankingapp.dto.AuthenticationRequest;
-import com.cfkiatong.springbootbankingapp.dto.AuthenticationResponse;
-import com.cfkiatong.springbootbankingapp.entity.Account;
-import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
-import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
+import com.cfkiatong.springbootbankingapp.security.UserPrincipal;
+import com.cfkiatong.springbootbankingapp.security.jwt.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 @Service
 public class AuthenticationService {

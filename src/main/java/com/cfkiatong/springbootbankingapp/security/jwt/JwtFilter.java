@@ -1,6 +1,4 @@
-package com.cfkiatong.springbootbankingapp.security.filter;
-import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
-import com.cfkiatong.springbootbankingapp.security.JwtService;
+package com.cfkiatong.springbootbankingapp.security.jwt;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,11 +19,9 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
 
     private JwtService jwtService;
-    AccountRepository accountRepository;
 
-    JwtFilter(JwtService jwtService, AccountRepository accountRepository) {
-        this.jwtService = jwtService;
-        this.accountRepository = accountRepository; }
+    JwtFilter(JwtService jwtService) {
+        this.jwtService = jwtService; }
 
     @Override
     public void doFilterInternal(
@@ -60,6 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                     .toList();
 
             UserDetails user = new User(id, "", authorities);
+
 
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
