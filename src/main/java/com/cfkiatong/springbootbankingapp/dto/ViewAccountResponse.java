@@ -1,46 +1,38 @@
 package com.cfkiatong.springbootbankingapp.dto;
 
+import com.cfkiatong.springbootbankingapp.entity.Account;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public class ViewAccountResponse {
 
-    private UUID id;
-    private String firstName;
-    private String lastName;
-    private String username;
+    private AccountType accountType;
+    private String ownerUsername;
     private BigDecimal balance;
+    private UUID accountId;
 
-    public UUID getId() {
-        return id;
+    public ViewAccountResponse(AccountType accountType, String ownerUsername, BigDecimal balance, UUID accountId) {
+        this.accountType = accountType;
+        this.ownerUsername = ownerUsername;
+        this.balance = balance;
+        this.accountId = accountId;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public AccountType getAccountType() {
+        return accountType;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public String getOwnerUsername() {
+        return ownerUsername;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setOwnerUsername(String ownerUsername) {
+        this.ownerUsername = ownerUsername;
     }
 
     public BigDecimal getBalance() {
@@ -51,4 +43,11 @@ public class ViewAccountResponse {
         this.balance = balance;
     }
 
+    public UUID getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(UUID accountId) {
+        this.accountId = accountId;
+    }
 }

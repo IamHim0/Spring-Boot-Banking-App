@@ -1,12 +1,15 @@
 package com.cfkiatong.springbootbankingapp.security;
 
+import com.cfkiatong.springbootbankingapp.dto.Roles;
 import com.cfkiatong.springbootbankingapp.entity.Account;
+import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class UserPrincipal implements UserDetails {
@@ -14,11 +17,13 @@ public class UserPrincipal implements UserDetails {
     private final UUID id;
     private final String username;
     private final String password;
+    private final Set<Roles> roles;
 
-    public UserPrincipal(Account account) {
-        this.id = account.getId();
-        this.username = account.getUsername();
-        this.password = account.getPassword();
+    public UserPrincipal(UserEntity user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        this.roles = user.getRoles();
     }
 
     public UUID getId() {
@@ -33,6 +38,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public @Nullable String getPassword() {
         return password;
+    }
+
+    public Set<Roles> getRoles() {
+        return roles;
     }
 
     @Override

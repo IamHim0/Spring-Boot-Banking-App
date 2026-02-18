@@ -9,48 +9,16 @@ import java.util.UUID;
 
 public class CreateAccountRequest {
 
-    @NotBlank(message = "first name field cannot be empty")
-    private String firstName;
-    @NotBlank(message = "last name field cannot be empty")
-    private String lastName;
-    @NotBlank(message = "username field cannot be empty")
-    private String username;
-    @NotBlank(message = "password field cannot be empty")
-    private String password;
     @NotNull(message = "initial deposit cannot be empty ")
     @DecimalMin(value = "1000", message = "initial deposit must be at least ₱ 1000")
     private BigDecimal initialDeposit;
+    private AccountType accountType;
+    private UUID ownerId;
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public CreateAccountRequest(BigDecimal initialDeposit, AccountType accountType, UUID ownerId) {
+        this.initialDeposit = initialDeposit;
+        this.accountType = accountType;
+        this.ownerId = ownerId;
     }
 
     public BigDecimal getInitialDeposit() {
@@ -61,4 +29,19 @@ public class CreateAccountRequest {
         this.initialDeposit = initialDeposit;
     }
 
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public UUID getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(UUID ownerId) {
+        this.ownerId = ownerId;
+    }
 }

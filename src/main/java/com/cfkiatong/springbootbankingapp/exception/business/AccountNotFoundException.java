@@ -10,7 +10,7 @@ public class AccountNotFoundException extends BusinessException {
     }
 
     public AccountNotFoundException(UUID id) {
-        super("The account with username '" + id + "' does not exist");
+        super("The account with id '" + id + "' does not exist");
     }
 
     public HttpStatus getStatus() {

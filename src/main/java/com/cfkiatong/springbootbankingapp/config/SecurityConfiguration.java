@@ -50,7 +50,7 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(
                 requests ->
                         requests
-                                .requestMatchers("/api/v1/accounts", "/api/v1/auth/login")
+                                .requestMatchers("/api/v1/users", "/api/v1/auth/login")
                                 .permitAll() //Waves authentication for login & register endpoints
                                 .anyRequest().authenticated());
 

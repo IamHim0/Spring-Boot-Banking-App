@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.accept.ApiVersionResolver;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +66,12 @@ public class GlobalExceptionHandler {
                 businessException.getMessage(),
                 request.getRequestURI(),
                 null));
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException unauthorizedException, HttpServletRequest request) {
+        return ResponseEntity.status(unauthorizedException.getStatus())
+                .body(buildApiError(unauthorizedException.getStatus(), unauthorizedException.getMessage(), request.getRequestURI(), null));
     }
 
 }

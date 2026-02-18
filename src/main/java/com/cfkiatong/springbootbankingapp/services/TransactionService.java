@@ -8,6 +8,7 @@ import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalance
 import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +25,12 @@ public class TransactionService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final Mapper mapper;
 
-    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, Mapper mapper) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.mapper = mapper;
     }
 
     private Account findAccount(String username) {
@@ -38,67 +41,36 @@ public class TransactionService {
         return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
-    public ViewAccountResponse addAccount(CreateAccountRequest createAccountRequest) {
-        if (accountRepository.findByUsername(createAccountRequest.getUsername()).isPresent()) {
-            throw new UsernameUnavailableException(createAccountRequest.getUsername());
+    public TransactionHistoryResponse getTransactions(UserDetails userDetails, UUID accountId){
+        Account account = findAccount(accountId);
+
+        if(!account.getOwner().getId().toString().equals(userDetails.getUsername())){
+            throw new AccountNotFoundException(userDetails.getUsername());
         }
 
-        Account account = new Account(
-                createAccountRequest.getFirstName(),
-                createAccountRequest.getLastName(),
-                createAccountRequest.getUsername(),
-                new BCryptPasswordEncoder().encode(createAccountRequest.getPassword()),
-                createAccountRequest.getInitialDeposit());
-        accountRepository.save(account);
-
-        return mapToViewAccountResponse(account);
+        return mapper.mapToTransactionHistoryResponse(account, transactionRepository);
     }
 
-    public ViewAccountResponse getAccount(UUID id) {
-        return mapToViewAccountResponse(findAccount(id));
-    }
-
-    public TransactionHistoryResponse getTransactions(UUID id){
-        return mapToTransactionHistoryReponse(findAccount(id));
-    }
-
-    @Transactional
-    public ViewAccountResponse updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
+    public ViewBalanceResponse viewBalance(UserDetails userDetails, UUID id) {
         Account account = findAccount(id);
 
-        if (updateAccountRequest.getNewFirstName() != null) {
-            account.setFirstName(updateAccountRequest.getNewFirstName());
-        }
-        if (updateAccountRequest.getNewLastName() != null) {
-            account.setLastName(updateAccountRequest.getNewLastName());
-        }
-        if (updateAccountRequest.getNewUsername() != null) {
-            account.setUsername(updateAccountRequest.getNewUsername());
-        }
-        if (updateAccountRequest.getNewPassword() != null) {
-            String hashedNewPassword = new BCryptPasswordEncoder().encode(updateAccountRequest.getNewPassword());
-
-            account.setPassword(hashedNewPassword);
+        if(!account.getOwner().getId().toString().equals(userDetails.getUsername())){
+            throw new AccountNotFoundException(userDetails.getUsername());
         }
 
-        return mapToViewAccountResponse(account);
-    }
-
-    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
-    public void deleteAccount(UUID id) {
-        accountRepository.deleteById(id);
-    }
-
-    public ViewBalanceResponse viewBalance(UUID id) {
-        return mapToViewBalanceResponse(findAccount(id));
+        return mapper.mapToViewBalanceResponse(account);
     }
 
     @Transactional
-    public ViewBalanceResponse makeTransaction(UUID id, TransactionRequest transactionRequest) {
+    public ViewBalanceResponse makeTransaction(UserDetails userDetails, UUID id, TransactionRequest transactionRequest) {
         TransactionType type = transactionRequest.getType();
 
         Account account = findAccount(id);
+
+        if(!account.getOwner().getId().toString().equals(userDetails.getUsername())){
+            throw new AccountNotFoundException(userDetails.getUsername());
+        }
+
         UUID targetAccId = null;
 
         BigDecimal sourceBalanceBefore = account.getBalance();
@@ -153,7 +125,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        return mapToViewBalanceResponse(account);
+        return mapper.mapToViewBalanceResponse(account);
     }
 
     //ADMIN METHODS
@@ -178,45 +150,6 @@ public class TransactionService {
                 .toList();
 
         return new AdminTransactionHistoryResponse(dtos);
-    }
-
-    //DTO MAPPING
-    private ViewAccountResponse mapToViewAccountResponse(Account account) {
-        ViewAccountResponse accDTO = new ViewAccountResponse();
-
-        accDTO.setId(account.getId());
-        accDTO.setFirstName(account.getFirstName());
-        accDTO.setLastName(account.getLastName());
-        accDTO.setUsername(account.getUsername());
-        accDTO.setBalance(account.getBalance());
-
-        return accDTO;
-    }
-
-    private TransactionHistoryResponse mapToTransactionHistoryReponse(Account  account) {
-        List<Transaction> transactions = transactionRepository.findBySourceAccount(account.getId());
-
-        List<TransactionDTO> transactionDTOs = transactions.stream()
-                .map(transaction -> new TransactionDTO(
-                        transaction.getTimestamp(),
-                        transaction.getTransactionId(),
-                        transaction.getType(),
-                        transaction.getSourceAccount(),
-                        transaction.getTransactionAmount(),
-                        transaction.getSourceBalanceBefore(),
-                        transaction.getSourceBalanceAfter()
-                        ))
-                .toList();
-
-        return new TransactionHistoryResponse(transactionDTOs);
-    }
-
-    private ViewBalanceResponse mapToViewBalanceResponse(Account account) {
-        ViewBalanceResponse balanceDTO = new ViewBalanceResponse();
-
-        balanceDTO.setBalance(account.getBalance());
-
-        return balanceDTO;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.cfkiatong.springbootbankingapp.entity;
 
+import com.cfkiatong.springbootbankingapp.dto.AccountType;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -12,69 +13,31 @@ public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String firstName;
-    private String lastName;
-    @Column(nullable = false, unique = true)
-    private String username;
-    private String password;
-    private BigDecimal initialDeposit;
+    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountType accountType;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private UserEntity owner;
 
     protected Account() {
 
     }
 
-    public Account(String firstName, String lastName, String username, String password, BigDecimal initialDeposit) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.password = password;
-        this.initialDeposit = initialDeposit;
-        this.balance = initialDeposit;
+    public Account(BigDecimal balance, AccountType accountType, UserEntity owner) {
+        this.balance = balance;
+        this.accountType = accountType;
+        this.owner = owner;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public BigDecimal getInitialDeposit() {
-        return initialDeposit;
-    }
-
-    public void setInitialDeposit(BigDecimal initialDeposit) {
-        this.initialDeposit = initialDeposit;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public BigDecimal getBalance() {
@@ -83,6 +46,22 @@ public class Account {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public UserEntity getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserEntity owner) {
+        this.owner = owner;
     }
 
     @Override

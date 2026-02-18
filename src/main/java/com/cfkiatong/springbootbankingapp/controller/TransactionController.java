@@ -16,68 +16,38 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/accounts")
+@RequestMapping("api/v1/me/accounts/transactions")
 public class TransactionController {
 
-    private final TransactionService services;
+    private final TransactionService transactionService;
 
-    public TransactionController (TransactionService services) {
-        this.services = services;
+    public TransactionController (TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
-    //Create Account
-    @PostMapping
-    public ResponseEntity<ViewAccountResponse> addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
-        ViewAccountResponse accountResponse = services.addAccount(createAccountRequest);
-
-        return ResponseEntity.created(URI.create("/api/v1/accounts/" + accountResponse.getId())).body(accountResponse);
+    @GetMapping("{id}/balance")
+    public ResponseEntity<ViewBalanceResponse> viewBalance(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
+        return ResponseEntity.ok(transactionService.viewBalance(userDetails, accountId));
     }
 
-    //ID BASED MAPPING:
-    @GetMapping("/me")
-    public ResponseEntity<ViewAccountResponse> getAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(services.getAccount(UUID.fromString(userDetails.getUsername())));
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<TransactionHistoryResponse> getTransactions(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId){
+        return ResponseEntity.ok(transactionService.getTransactions(userDetails, accountId));
     }
 
-    @PatchMapping("/me")
-    public ResponseEntity<ViewAccountResponse> updateAccount(@AuthenticationPrincipal UserDetails userDetails, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
-        if (!updateAccountRequest.oneFieldPresent()) {
-            throw new NoFieldUpdatedException();
-        }
-
-        return ResponseEntity.ok(services.updateAccount(UUID.fromString(userDetails.getUsername()), updateAccountRequest));
-    }
-
-    @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        services.deleteAccount(UUID.fromString(userDetails.getUsername()));
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/me/balance")
-    public ResponseEntity<ViewBalanceResponse> viewBalance(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(services.viewBalance(UUID.fromString(userDetails.getUsername())));
-    }
-
-    @GetMapping("/me/transactions")
-    public ResponseEntity<TransactionHistoryResponse> getTransactions(@AuthenticationPrincipal UserDetails userDetails){
-        return ResponseEntity.ok(services.getTransactions(UUID.fromString(userDetails.getUsername())));
-    }
-
-    @PostMapping("/me/transactions")
-    public ResponseEntity<ViewBalanceResponse> makeTransaction(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody TransactionRequest transactionRequest) {
+    @PostMapping("/{id}}/transactions")
+    public ResponseEntity<ViewBalanceResponse> makeTransaction(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @Valid @RequestBody TransactionRequest transactionRequest) {
         if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountUsername() == null) {
             throw new NoTargetAccountException();
         }
 
-        return ResponseEntity.ok(services.makeTransaction(UUID.fromString(userDetails.getUsername()), transactionRequest));
+        return ResponseEntity.ok(transactionService.makeTransaction(userDetails, accountId, transactionRequest));
     }
 
     //ADMIN ENDPOINTS
     @GetMapping("/me/transactionhistory")
     public ResponseEntity<AdminTransactionHistoryResponse>  getTransactionHistory(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(services.getTransactionHistory());
+        return ResponseEntity.ok(transactionService.getTransactionHistory());
     }
 
 }
