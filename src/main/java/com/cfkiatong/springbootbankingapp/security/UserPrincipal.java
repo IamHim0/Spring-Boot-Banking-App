@@ -1,6 +1,7 @@
 package com.cfkiatong.springbootbankingapp.security;
 
 import com.cfkiatong.springbootbankingapp.entity.Account;
+import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,10 +16,16 @@ public class UserPrincipal implements UserDetails {
     private final String username;
     private final String password;
 
-    public UserPrincipal(Account account) {
-        this.id = account.getId();
-        this.username = account.getUsername();
-        this.password = account.getPassword();
+//    public UserPrincipal(Account account) {
+//        this.id = account.getId();
+//        this.username = account.getUsername();
+//        this.password = account.getPassword();
+//    }
+
+    public UserPrincipal(UserEntity userEntity) {
+        this.id = userEntity.getUserId();
+        this.username = userEntity.getUsername();
+        this.password = userEntity.getPassword();
     }
 
     public UUID getId() {

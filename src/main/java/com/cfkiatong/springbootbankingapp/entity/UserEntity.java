@@ -31,6 +31,10 @@ public class UserEntity {
     @OneToMany //(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 
+    public UserEntity() {
+
+    }
+
     public UserEntity(String firstName, String lastName, String email, String username, String password, Set<Role> roles, List<Account> accounts) {
         this.firstName = firstName;
         this.lastName = lastName;
