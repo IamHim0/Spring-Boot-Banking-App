@@ -3,6 +3,7 @@ package com.cfkiatong.springbootbankingapp.entity;
 import com.cfkiatong.springbootbankingapp.dto.Role;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -24,9 +25,10 @@ public class UserEntity {
     private String username;
     @Column(nullable = false)
     private String password;
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
-    @OneToMany
+    @OneToMany //(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 
     public UserEntity(String firstName, String lastName, String email, String username, String password, Set<Role> roles, List<Account> accounts) {
