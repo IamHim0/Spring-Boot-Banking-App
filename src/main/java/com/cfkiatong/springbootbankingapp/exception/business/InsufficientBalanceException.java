@@ -9,7 +9,7 @@ public class InsufficientBalanceException extends BusinessException {
     }
 
     public HttpStatus getStatus() {
-        return HttpStatus.NOT_FOUND;
+        return HttpStatus.UNPROCESSABLE_ENTITY;
     }
 
 }

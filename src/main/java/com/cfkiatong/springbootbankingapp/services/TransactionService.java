@@ -5,10 +5,9 @@ import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.entity.Transaction;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
-import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +21,12 @@ public class TransactionService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final UserEntityRepository userEntityRepository;
 
-    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository, UserEntityRepository userEntityRepository) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.userEntityRepository = userEntityRepository;
     }
 
     private Account findAccount(String username) {
@@ -36,55 +37,6 @@ public class TransactionService {
         return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
-    public ViewAccountResponse addAccount(CreateAccountRequest createAccountRequest) {
-        if (accountRepository.findByUsername(createAccountRequest.getUsername()).isPresent()) {
-            throw new UsernameUnavailableException(createAccountRequest.getUsername());
-        }
-
-        Account account = new Account(
-                createAccountRequest.getFirstName(),
-                createAccountRequest.getLastName(),
-                createAccountRequest.getUsername(),
-                new BCryptPasswordEncoder().encode(createAccountRequest.getPassword()),
-                createAccountRequest.getInitialDeposit());
-        accountRepository.save(account);
-
-        return mapToViewAccountResponse(account);
-    }
-
-    public ViewAccountResponse getAccount(UUID id) {
-        return mapToViewAccountResponse(findAccount(id));
-    }
-
-    @Transactional
-    public ViewAccountResponse updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
-        Account account = findAccount(id);
-
-        if (updateAccountRequest.getNewFirstName() != null) {
-            account.setFirstName(updateAccountRequest.getNewFirstName());
-        }
-        if (updateAccountRequest.getNewLastName() != null) {
-            account.setLastName(updateAccountRequest.getNewLastName());
-        }
-        if (updateAccountRequest.getNewUsername() != null) {
-            account.setUsername(updateAccountRequest.getNewUsername());
-        }
-        if (updateAccountRequest.getNewPassword() != null) {
-            String hashedNewPassword = new BCryptPasswordEncoder().encode(updateAccountRequest.getNewPassword());
-
-            account.setPassword(hashedNewPassword);
-        }
-
-        return mapToViewAccountResponse(account);
-    }
-
-    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
-    public void deleteAccount(UUID id) {
-        if (findAccount(id) != null) {
-            accountRepository.deleteById(id);
-        }
-    }
 
     public ViewBalanceResponse viewBalance(UUID id) {
         return mapToViewBalanceResponse(findAccount(id));
@@ -150,19 +102,6 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         return mapToViewBalanceResponse(account);
-    }
-
-    //DTO MAPPING
-    private ViewAccountResponse mapToViewAccountResponse(Account account) {
-        ViewAccountResponse accDTO = new ViewAccountResponse();
-
-        accDTO.setId(account.getId());
-        accDTO.setFirstName(account.getFirstName());
-        accDTO.setLastName(account.getLastName());
-        accDTO.setUsername(account.getUsername());
-        accDTO.setBalance(account.getBalance());
-
-        return accDTO;
     }
 
     private ViewBalanceResponse mapToViewBalanceResponse(Account account) {
