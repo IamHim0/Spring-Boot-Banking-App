@@ -53,19 +53,6 @@ public class AccountService {
         }
     }
 
-    //DTO MAPPING
-    private ViewAccountResponse mapToViewAccountResponse(Account account) {
-        ViewAccountResponse accDTO = new ViewAccountResponse();
-
-        accDTO.setId(account.getId());
-        accDTO.setFirstName(account.getFirstName());
-        accDTO.setLastName(account.getLastName());
-        accDTO.setUsername(account.getUsername());
-        accDTO.setBalance(account.getBalance());
-
-        return accDTO;
-    }
-
     @Transactional
     public ViewAccountResponse updateAccount(UUID id, UpdateAccountRequest updateAccountRequest) {
         Account account = findAccount(id);
@@ -86,6 +73,19 @@ public class AccountService {
         }
 
         return mapToViewAccountResponse(account);
+    }
+
+    //DTO MAPPING
+    private ViewAccountResponse mapToViewAccountResponse(Account account) {
+        ViewAccountResponse accDTO = new ViewAccountResponse();
+
+        accDTO.setId(account.getId());
+        accDTO.setFirstName(account.getFirstName());
+        accDTO.setLastName(account.getLastName());
+        accDTO.setUsername(account.getUsername());
+        accDTO.setBalance(account.getBalance());
+
+        return accDTO;
     }
 
 }

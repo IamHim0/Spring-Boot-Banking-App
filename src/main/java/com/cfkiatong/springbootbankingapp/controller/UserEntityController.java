@@ -1,10 +1,10 @@
 package com.cfkiatong.springbootbankingapp.controller;
 
 import com.cfkiatong.springbootbankingapp.dto.CreateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.UpdateUserRequest;
 import com.cfkiatong.springbootbankingapp.dto.UserResponse;
-import com.cfkiatong.springbootbankingapp.entity.UserEntity;
+import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
 import com.cfkiatong.springbootbankingapp.services.UserEntityService;
-import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,6 +30,22 @@ public class UserEntityController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getUser(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userEntityService.getUser(UUID.fromString(userDetails.getUsername())));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateUser(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UpdateUserRequest updateUserRequest) {
+        if (!updateUserRequest.oneFieldPresent()) {
+            throw new NoFieldUpdatedException();
+        }
+
+        return ResponseEntity.ok(userEntityService.updateUser(UUID.fromString(userDetails.getUsername()), updateUserRequest));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal UserDetails userDetails) {
+        userEntityService.deleteUser(UUID.fromString(userDetails.getUsername()));
+
+        return ResponseEntity.notFound().build();
     }
 
 }
