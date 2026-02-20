@@ -1,22 +1,18 @@
 package com.cfkiatong.springbootbankingapp.controller;
 
-import com.cfkiatong.springbootbankingapp.dto.CreateAccountRequest;
-import com.cfkiatong.springbootbankingapp.dto.UpdateAccountRequest;
-import com.cfkiatong.springbootbankingapp.dto.ViewAccountResponse;
-import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
+import com.cfkiatong.springbootbankingapp.dto.GetAccountResponse;
+import com.cfkiatong.springbootbankingapp.dto.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.services.AccountService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/accounts")
+@RequestMapping("api/v1/users/me/accounts")
 public class AccountController {
 
     private final AccountService accountService;
@@ -25,37 +21,30 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    //Create Account
     @PostMapping
-    public ResponseEntity<ViewAccountResponse> addAccount(@Valid @RequestBody CreateAccountRequest createAccountRequest) {
-        ViewAccountResponse accountResponse = accountService.addAccount(createAccountRequest);
+    public ResponseEntity<GetAccountResponse> createAccount(@AuthenticationPrincipal UserDetails userDetails) {
+        GetAccountResponse accountResponse = accountService.createAccount(UUID.fromString(userDetails.getUsername()));
 
-        return ResponseEntity.created(URI.create("/api/v1/accounts/" + accountResponse.getId())).body(accountResponse);
+        return ResponseEntity.created(URI.create("/api/v1/users/me/accounts/" + accountResponse.getId())).body(accountResponse);
     }
 
-    @GetMapping("/get")
-    public ResponseEntity<ViewAccountResponse> getAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        ViewAccountResponse accountResponse = accountService.getAccount(UUID.fromString(userDetails.getUsername()));
+    @GetMapping("/{accountId}")
+    public ResponseEntity<GetAccountResponse> getAccount(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
+        GetAccountResponse accountResponse = accountService.getAccount(UUID.fromString(userDetails.getUsername()), accountId);
 
         return ResponseEntity.ok(accountResponse);
     }
 
-    @DeleteMapping("/delete")
+    @PatchMapping("/{accountId}")
+    public ResponseEntity<GetAccountResponse> changeAccountOwner(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @RequestBody ChangeAccountOwnerRequest changeAccountOwnerRequest) {
+        return ResponseEntity.ok(accountService.changeAccountOwner(UUID.fromString(userDetails.getUsername()), accountId, changeAccountOwnerRequest));
+    }
+
+    @DeleteMapping("/{accountId}")
     public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
         accountService.deleteAccount(UUID.fromString(userDetails.getUsername()));
 
         return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/update")
-    public ResponseEntity<ViewAccountResponse> updateAccount(@AuthenticationPrincipal UserDetails userDetails, @Validated @RequestBody UpdateAccountRequest updateAccountRequest) {
-        if (!updateAccountRequest.oneFieldPresent()) {
-            throw new NoFieldUpdatedException();
-        }
-
-        ViewAccountResponse updatedAccount = accountService.updateAccount(UUID.fromString(userDetails.getUsername()), updateAccountRequest);
-
-        return ResponseEntity.ok(updatedAccount);
     }
 
 }

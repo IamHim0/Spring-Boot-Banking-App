@@ -49,10 +49,6 @@ public class UserEntityService {
     public UserResponse getUser(UUID userId) {
         UserEntity userEntity = findUserEntity(userId);
 
-        if (!userId.toString().equals(userEntity.getUserId().toString())) {
-            throw new AccountNotFoundException(userId.toString());
-        }
-
         return mapper.mapToUserResponse(userEntity);
     }
 

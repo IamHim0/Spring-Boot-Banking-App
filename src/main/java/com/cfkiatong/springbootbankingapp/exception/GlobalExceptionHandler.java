@@ -69,4 +69,16 @@ public class GlobalExceptionHandler {
                 null));
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException unauthorizedException, HttpServletRequest request) {
+        Class<?> unauthorizedExceptionClass = unauthorizedException.getClass();
+
+        HttpStatus status = unauthorizedException.getStatus();
+
+        return ResponseEntity.status(status).body(buildApiError(status,
+                unauthorizedException.getMessage(),
+                request.getRequestURI(),
+                null));
+    }
+
 }

@@ -7,74 +7,31 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
+@Table(name = "Accounts")
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private String firstName;
-    private String lastName;
-    @Column(nullable = false, unique = true)
-    private String username;
-    private String password;
-    private BigDecimal initialDeposit;
     private BigDecimal balance;
+    @ManyToOne
+    @JoinColumn(name = "account_owner_user_id")
+    private UserEntity accountOwner;
 
     protected Account() {
 
     }
 
-    public Account(String firstName, String lastName, String username, String password, BigDecimal initialDeposit) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.password = password;
-        this.initialDeposit = initialDeposit;
-        this.balance = initialDeposit;
+    public Account(UserEntity accountOwner) {
+        this.accountOwner = accountOwner;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public BigDecimal getInitialDeposit() {
-        return initialDeposit;
-    }
-
-    public void setInitialDeposit(BigDecimal initialDeposit) {
-        this.initialDeposit = initialDeposit;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public BigDecimal getBalance() {
@@ -83,6 +40,14 @@ public class Account {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public UserEntity getAccountOwner() {
+        return accountOwner;
+    }
+
+    public void setAccountOwner(UserEntity accountOwner) {
+        this.accountOwner = accountOwner;
     }
 
     @Override

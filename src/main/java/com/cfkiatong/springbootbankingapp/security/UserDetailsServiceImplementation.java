@@ -3,6 +3,7 @@ package com.cfkiatong.springbootbankingapp.security;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +22,7 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
 
     @Override
     public UserPrincipal loadUserByUsername(String username) throws AccountNotFoundException {
-        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
+        UserEntity userEntity = userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
         return new UserPrincipal(userEntity);
     }
 

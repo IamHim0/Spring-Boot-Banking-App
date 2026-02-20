@@ -9,7 +9,7 @@ public class NoFieldUpdatedException extends BusinessException {
     }
 
     public HttpStatus getStatus() {
-        return HttpStatus.UNPROCESSABLE_ENTITY;
+        return HttpStatus.UNPROCESSABLE_CONTENT;
     }
 
 }
