@@ -15,8 +15,8 @@ public class TransactionRequest {
     @NotNull(message = "transaction amount cannot be empty")
     @DecimalMin(value = "100", message = "transaction amount must be at least ₱ 100")
     private BigDecimal amount;
-
-    private String targetAccountUsername;
+    @NotNull(message = "target account cannot be empty")
+    private UUID targetAccountId;
 
     public TransactionType getType() {
         return type;
@@ -34,12 +34,12 @@ public class TransactionRequest {
         this.amount = amount;
     }
 
-    public String getTargetAccountUsername() {
-        return targetAccountUsername;
+    public UUID getTargetAccountId() {
+        return targetAccountId;
     }
 
-    public void setTargetAccountUsername(String targetAccountUsername) {
-        this.targetAccountUsername = targetAccountUsername;
+    public void setTargetAccountUsername(UUID targetAccountId) {
+        this.targetAccountId = targetAccountId;
     }
     
 }

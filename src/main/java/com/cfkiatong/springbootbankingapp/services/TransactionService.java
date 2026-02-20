@@ -33,10 +33,6 @@ public class TransactionService {
         this.mapper = mapper;
     }
 
-    private Account findAccount(String username) {
-        return accountRepository.findByUsername(username).orElseThrow(() -> new AccountNotFoundException(username));
-    }
-
     private Account findAccount(UUID id) {
         return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
@@ -102,7 +98,7 @@ public class TransactionService {
             case TRANSFER:
                 withdraw.accept(transactionRequest.getAmount());
 
-                Account targetAccount = findAccount(transactionRequest.getTargetAccountUsername());
+                Account targetAccount = findAccount(transactionRequest.getTargetAccountId());
                 targetAccId = targetAccount.getId();
                 targetBalanceBefore = targetAccount.getBalance();
 

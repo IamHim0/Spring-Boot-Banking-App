@@ -4,10 +4,12 @@ import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.Transaction;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.UUID;
 
+@Component
 public class Mapper {
 
     public ViewUserResponse mapToViewUserResponse(UserEntity userEntity) {

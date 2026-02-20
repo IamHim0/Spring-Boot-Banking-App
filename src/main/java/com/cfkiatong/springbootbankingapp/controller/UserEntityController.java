@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("/api/v1/users")
 public class UserEntityController {
 
     private final UserEntityService userEntityService;
@@ -25,7 +25,7 @@ public class UserEntityController {
     public ResponseEntity<ViewUserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
         ViewUserResponse userResponse = userEntityService.createUser(createUserRequest);
 
-        return ResponseEntity.created(URI.create("api/v1/me")).body(userResponse);
+        return ResponseEntity.created(URI.create("api/v1/users/me")).body(userResponse);
     }
 
     @GetMapping("/me")

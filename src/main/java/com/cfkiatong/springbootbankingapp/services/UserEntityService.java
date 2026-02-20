@@ -25,14 +25,12 @@ public class UserEntityService {
 
     public ViewUserResponse createUser(CreateUserRequest createUserRequest) {
 
-        String hashedPassword = new BCryptPasswordEncoder().encode(createUserRequest.getPassword());
-
         UserEntity userEntity = new UserEntity(
                 createUserRequest.getFirstName(),
                 createUserRequest.getLastName(),
                 createUserRequest.getEmail(),
                 createUserRequest.getUsername(),
-                hashedPassword,
+                new BCryptPasswordEncoder().encode(createUserRequest.getPassword()),
                 createUserRequest.getRoles(),
                 null);
 

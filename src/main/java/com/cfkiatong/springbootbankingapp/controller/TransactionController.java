@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/me/accounts/transactions")
+@RequestMapping("/api/v1/me/accounts/transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -35,9 +35,9 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getTransactions(userDetails, accountId));
     }
 
-    @PostMapping("/{id}}/transactions")
+    @PostMapping("/{id}/transactions")
     public ResponseEntity<ViewBalanceResponse> makeTransaction(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @Valid @RequestBody TransactionRequest transactionRequest) {
-        if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountUsername() == null) {
+        if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountId() == null) {
             throw new NoTargetAccountException();
         }
 

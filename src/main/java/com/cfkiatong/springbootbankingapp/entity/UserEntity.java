@@ -20,13 +20,17 @@ public class UserEntity {
     private String username;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String email;
     @ElementCollection
     @Enumerated(EnumType.STRING)
     private Set<Roles> roles = new HashSet<>();
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts = new ArrayList<>();
+
+    UserEntity(){
+
+    }
 
     public UserEntity(String firstName, String lastName, String username, String password, String email, Set<Roles> roles, List<Account> accounts) {
         this.firstName = firstName;
