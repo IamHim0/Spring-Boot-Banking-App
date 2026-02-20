@@ -1,13 +1,15 @@
 services:
   db:
-    container_name: account_db
+    container_name: sbbank-dev
     image: postgres:latest
     environment:
       POSTGRES_USER: cfkiatong
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: sbbank-dev
+
       PGDATA: /data/postgres
     volumes:
-      - account_db_data:/data/postgres
+      - sbbank-dev:/data/postgres
     ports:
       - "5532:5432"
     networks:
@@ -18,4 +20,4 @@ networks:
   db:
     driver: bridge
 volumes:
-  account_db_data:
+  sbbank-dev:
