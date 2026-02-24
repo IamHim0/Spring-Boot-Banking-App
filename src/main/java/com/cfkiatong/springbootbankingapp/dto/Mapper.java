@@ -25,4 +25,18 @@ public class Mapper {
         );
     }
 
+    public GetAccountResponse mapToViewAccountResponse(Account account) {
+        GetAccountResponse accDTO = new GetAccountResponse();
+
+        accDTO.setId(account.getId());
+        accDTO.setAccountOwner(account.getAccountOwner().getUsername());
+        accDTO.setBalance(account.getBalance());
+
+        return accDTO;
+    }
+
+    public GetBalanceResponse mapToViewBalanceResponse(Account account) {
+        return new GetBalanceResponse(account.getBalance());
+    }
+
 }

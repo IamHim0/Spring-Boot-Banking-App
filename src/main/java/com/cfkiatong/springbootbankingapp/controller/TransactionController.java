@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -37,6 +38,16 @@ public class TransactionController {
         GetBalanceResponse transactionResponse = transactionService.makeTransaction(UUID.fromString(userDetails.getUsername()), accountId, transactionRequest);
 
         return ResponseEntity.ok(transactionResponse);
+    }
+
+    @GetMapping("/usertransactions")
+    public List<TransactionDTO> getUserTransactions(@AuthenticationPrincipal UserDetails userDetails) {
+        return transactionService.getUserTransactions(UUID.fromString(userDetails.getUsername()));
+    }
+
+    @GetMapping("/accounttransactions")
+    public List<TransactionDTO> getAccountTransactions(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
+        return transactionService.getAccountTransactions(UUID.fromString(userDetails.getUsername()), accountId);
     }
 
 }

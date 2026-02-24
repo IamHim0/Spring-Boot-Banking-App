@@ -2,6 +2,7 @@ package com.cfkiatong.springbootbankingapp.services;
 
 import com.cfkiatong.springbootbankingapp.dto.GetAccountResponse;
 import com.cfkiatong.springbootbankingapp.dto.ChangeAccountOwnerRequest;
+import com.cfkiatong.springbootbankingapp.dto.Mapper;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
@@ -20,10 +21,12 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserEntityRepository userEntityRepository;
+    private final Mapper mapper;
 
-    public AccountService(AccountRepository accountRepository, UserEntityRepository userEntityRepository) {
+    public AccountService(AccountRepository accountRepository, UserEntityRepository userEntityRepository, Mapper mapper) {
         this.accountRepository = accountRepository;
         this.userEntityRepository = userEntityRepository;
+        this.mapper = mapper;
     }
 
     private Account findAccount(UUID id) {
@@ -37,7 +40,7 @@ public class AccountService {
 
         accountRepository.save(account);
 
-        return mapToViewAccountResponse(account);
+        return mapper.mapToViewAccountResponse(account);
     }
 
     public GetAccountResponse getAccount(UUID accountOwnerId, UUID accountId) {
@@ -47,7 +50,7 @@ public class AccountService {
             throw new ForbiddenException();
         }
 
-        return mapToViewAccountResponse(account);
+        return mapper.mapToViewAccountResponse(account);
     }
 
     @Transactional
@@ -72,24 +75,13 @@ public class AccountService {
 
         account.setAccountOwner(newOwner);
 
-        return mapToViewAccountResponse(account);
+        return mapper.mapToViewAccountResponse(account);
     }
 
     public void deleteAccount(UUID id) {
         if (findAccount(id) != null) {
             accountRepository.deleteById(id);
         }
-    }
-
-    //DTO MAPPING
-    private GetAccountResponse mapToViewAccountResponse(Account account) {
-        GetAccountResponse accDTO = new GetAccountResponse();
-
-        accDTO.setId(account.getId());
-        accDTO.setAccountOwner(account.getAccountOwner().getUsername());
-        accDTO.setBalance(account.getBalance());
-
-        return accDTO;
     }
 
 }

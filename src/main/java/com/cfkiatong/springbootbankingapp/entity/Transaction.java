@@ -5,9 +5,11 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
+@Table(name = "transactions")
 public class Transaction {
 
     private LocalDateTime timestamp;
@@ -127,5 +129,16 @@ public class Transaction {
 
     public void setTargetBalanceAfter(BigDecimal targetBalanceAfter) {
         this.targetBalanceAfter = targetBalanceAfter;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Transaction that)) return false;
+        return Objects.equals(transactionId, that.transactionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(transactionId);
     }
 }

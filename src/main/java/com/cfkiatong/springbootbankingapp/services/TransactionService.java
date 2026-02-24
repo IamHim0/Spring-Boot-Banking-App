@@ -3,28 +3,39 @@ package com.cfkiatong.springbootbankingapp.services;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.entity.Transaction;
+import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
+import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
 public class TransactionService {
 
+    private final UserEntityRepository userEntityRepository;
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+    private final Mapper mapper;
 
-    public TransactionService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public TransactionService(UserEntityRepository userEntityRepository,
+                              AccountRepository accountRepository,
+                              TransactionRepository transactionRepository,
+                              Mapper mapper) {
+        this.userEntityRepository = userEntityRepository;
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
+        this.mapper = mapper;
     }
 
     private Account findAccount(UUID id) {
@@ -38,7 +49,7 @@ public class TransactionService {
             throw new ForbiddenException();
         }
 
-        return mapToViewBalanceResponse(account);
+        return mapper.mapToViewBalanceResponse(account);
     }
 
     @Transactional
@@ -104,11 +115,45 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        return mapToViewBalanceResponse(account);
+        return mapper.mapToViewBalanceResponse(account);
     }
 
-    private GetBalanceResponse mapToViewBalanceResponse(Account account) {
-        return new GetBalanceResponse(account.getBalance());
+    public List<TransactionDTO> getUserTransactions(UUID ownerId) {
+        UserEntity user = userEntityRepository.findById(ownerId).orElseThrow();
+
+        List<Account> accounts = user.getAccounts();
+
+        List<UUID> accountIds = accounts.stream().map(Account::getId).toList();
+
+        List<Transaction> transactions = new ArrayList<>();
+
+        for (UUID accountId : accountIds) {
+            transactions.addAll(getAccountTransactions(accountId));
+        }
+
+        return transactions.stream().distinct().map(TransactionDTO::new).toList();
+    }
+
+    private List<Transaction> getAccountTransactions(UUID accountId) {
+        Account account = findAccount(accountId);
+
+        List<Transaction> transactions = transactionRepository.findBySourceAccount(accountId);
+        transactions.addAll(transactionRepository.findByTargetAccount(accountId));
+
+        return transactions;
+    }
+
+    public List<TransactionDTO> getAccountTransactions(UUID ownerId, UUID accountId) {
+        Account account = findAccount(accountId);
+
+        if (!account.getAccountOwner().getUserId().equals(ownerId)) {
+            throw new ForbiddenException();
+        }
+
+        List<Transaction> transactions = transactionRepository.findBySourceAccount(accountId);
+        transactions.addAll(transactionRepository.findByTargetAccount(accountId));
+
+        return transactions.stream().map(TransactionDTO::new).toList();
     }
 
 }
