@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/me/transactions")
+@RequestMapping("api/v1/users/me/accounts/{accountId}/transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
@@ -22,19 +22,19 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<GetBalanceResponse> getBalance(@AuthenticationPrincipal UserDetails userDetails) {
-        GetBalanceResponse balanceResponse = transactionService.getBalance(UUID.fromString(userDetails.getUsername()));
+    public ResponseEntity<GetBalanceResponse> getBalance(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
+        GetBalanceResponse balanceResponse = transactionService.getBalance(UUID.fromString(userDetails.getUsername()), accountId);
 
         return ResponseEntity.ok(balanceResponse);
     }
 
     @PostMapping
-    public ResponseEntity<GetBalanceResponse> makeTransaction(@AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody TransactionRequest transactionRequest) {
+    public ResponseEntity<GetBalanceResponse> makeTransaction(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @Valid @RequestBody TransactionRequest transactionRequest) {
         if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountId() == null) {
             throw new NoTargetAccountException();
         }
 
-        GetBalanceResponse transactionResponse = transactionService.makeTransaction(UUID.fromString(userDetails.getUsername()), transactionRequest);
+        GetBalanceResponse transactionResponse = transactionService.makeTransaction(UUID.fromString(userDetails.getUsername()), accountId, transactionRequest);
 
         return ResponseEntity.ok(transactionResponse);
     }

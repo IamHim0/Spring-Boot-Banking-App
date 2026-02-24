@@ -4,8 +4,16 @@ import java.math.BigDecimal;
 
 public class GetBalanceResponse {
 
-    public GetBalanceResponse(BigDecimal balance) {
+    private final BigDecimal balance;
 
+    public GetBalanceResponse(BigDecimal balance) {
+        this.balance = balance;
     }
 
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+    }
 }

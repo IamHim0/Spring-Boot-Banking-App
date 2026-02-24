@@ -4,8 +4,10 @@ import com.cfkiatong.springbootbankingapp.dto.GetAccountResponse;
 import com.cfkiatong.springbootbankingapp.dto.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
-import com.cfkiatong.springbootbankingapp.exception.UnauthorizedException;
+import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.InvalidAccountStateException;
+import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import org.springframework.stereotype.Service;
@@ -28,9 +30,8 @@ public class AccountService {
         return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    //Write methods (save, delete, deleteById, etc.) are @Transactional by default
     public GetAccountResponse createAccount(UUID ownerId) {
-        UserEntity accountOwner = userEntityRepository.findById(ownerId).orElseThrow(() -> new AccountNotFoundException(ownerId));
+        UserEntity accountOwner = userEntityRepository.findById(ownerId).orElseThrow();
 
         Account account = new Account(accountOwner);
 
@@ -43,7 +44,7 @@ public class AccountService {
         Account account = findAccount(accountId);
 
         if (!account.getAccountOwner().getUserId().equals(accountOwnerId)) {
-            throw new UnauthorizedException();
+            throw new ForbiddenException();
         }
 
         return mapToViewAccountResponse(account);
@@ -52,15 +53,24 @@ public class AccountService {
     @Transactional
     public GetAccountResponse changeAccountOwner(UUID accountOwnerId, UUID accountId, ChangeAccountOwnerRequest changeAccountOwnerRequest) {
         Account account = findAccount(accountId);
+        UUID currentOwnerId = account.getAccountOwner().getUserId();
 
-        if (!account.getAccountOwner().getUserId().equals(accountOwnerId)) {
-            throw new UnauthorizedException();
+        if (!currentOwnerId.equals(accountOwnerId)) {
+            throw new ForbiddenException();
         }
 
-        account.setAccountOwner(userEntityRepository.
+        UserEntity newOwner = userEntityRepository.
                 findByUsername(
                         changeAccountOwnerRequest.getNewAccountOwner())
-                .orElseThrow(() -> new AccountNotFoundException(changeAccountOwnerRequest.getNewAccountOwner())));
+                .orElseThrow(() -> new UserNotFoundException(changeAccountOwnerRequest.getNewAccountOwner()));
+
+        UUID newOwnerId = account.getAccountOwner().getUserId();
+
+        if (currentOwnerId.equals(newOwnerId)) {
+            throw new InvalidAccountStateException("New owner must be different from current owner");
+        }
+
+        account.setAccountOwner(newOwner);
 
         return mapToViewAccountResponse(account);
     }

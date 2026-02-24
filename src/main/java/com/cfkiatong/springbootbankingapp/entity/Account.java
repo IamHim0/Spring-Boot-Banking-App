@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Accounts")
+@Table(name = "accounts")
 public class Account {
 
     @Id
@@ -24,6 +24,7 @@ public class Account {
 
     public Account(UserEntity accountOwner) {
         this.accountOwner = accountOwner;
+        this.balance = new BigDecimal("0");
     }
 
     public UUID getId() {
