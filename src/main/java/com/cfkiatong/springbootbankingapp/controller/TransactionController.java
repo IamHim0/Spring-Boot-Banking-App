@@ -40,12 +40,12 @@ public class TransactionController {
         return ResponseEntity.ok(transactionResponse);
     }
 
-    @GetMapping("/usertransactions")
+    @GetMapping("/userhistory")
     public List<TransactionDTO> getUserTransactions(@AuthenticationPrincipal UserDetails userDetails) {
         return transactionService.getUserTransactions(UUID.fromString(userDetails.getUsername()));
     }
 
-    @GetMapping("/accounttransactions")
+    @GetMapping("/accounthistory")
     public List<TransactionDTO> getAccountTransactions(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
         return transactionService.getAccountTransactions(UUID.fromString(userDetails.getUsername()), accountId);
     }
