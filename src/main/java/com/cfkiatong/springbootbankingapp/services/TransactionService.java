@@ -135,8 +135,6 @@ public class TransactionService {
     }
 
     private List<Transaction> getAccountTransactions(UUID accountId) {
-        Account account = findAccount(accountId);
-
         List<Transaction> transactions = transactionRepository.findBySourceAccount(accountId);
         transactions.addAll(transactionRepository.findByTargetAccount(accountId));
 
