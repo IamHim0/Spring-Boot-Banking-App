@@ -1,8 +1,8 @@
 package com.cfkiatong.springbootbankingapp.controller;
 
-import com.cfkiatong.springbootbankingapp.dto.CreateUserRequest;
-import com.cfkiatong.springbootbankingapp.dto.UpdateUserRequest;
-import com.cfkiatong.springbootbankingapp.dto.UserResponse;
+import com.cfkiatong.springbootbankingapp.dto.request.CreateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
 import com.cfkiatong.springbootbankingapp.exception.business.NoFieldUpdatedException;
 import com.cfkiatong.springbootbankingapp.services.UserEntityService;
 import org.springframework.http.ResponseEntity;

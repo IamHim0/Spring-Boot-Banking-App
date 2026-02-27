@@ -1,4 +1,4 @@
-package com.cfkiatong.springbootbankingapp.dto;
+package com.cfkiatong.springbootbankingapp.dto.request;
 
 public class UpdateUserRequest {
 

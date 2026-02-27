@@ -1,4 +1,6 @@
-package com.cfkiatong.springbootbankingapp.dto;
+package com.cfkiatong.springbootbankingapp.dto.request;
+
+import com.cfkiatong.springbootbankingapp.dto.Role;
 
 import java.util.Set;
 

@@ -1,5 +1,8 @@
-package com.cfkiatong.springbootbankingapp.authentication;
+package com.cfkiatong.springbootbankingapp.controller;
 
+import com.cfkiatong.springbootbankingapp.dto.request.AuthenticationRequest;
+import com.cfkiatong.springbootbankingapp.dto.response.AuthenticationResponse;
+import com.cfkiatong.springbootbankingapp.services.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

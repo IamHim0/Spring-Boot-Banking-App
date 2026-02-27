@@ -1,7 +1,7 @@
-package com.cfkiatong.springbootbankingapp.dto;
+package com.cfkiatong.springbootbankingapp.dto.response;
 
+import com.cfkiatong.springbootbankingapp.dto.TransactionType;
 import com.cfkiatong.springbootbankingapp.entity.Transaction;
-import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

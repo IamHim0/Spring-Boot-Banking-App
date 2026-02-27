@@ -1,7 +1,7 @@
 package com.cfkiatong.springbootbankingapp.services;
 
-import com.cfkiatong.springbootbankingapp.dto.GetAccountResponse;
-import com.cfkiatong.springbootbankingapp.dto.ChangeAccountOwnerRequest;
+import com.cfkiatong.springbootbankingapp.dto.response.GetAccountResponse;
+import com.cfkiatong.springbootbankingapp.dto.request.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.dto.Mapper;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;

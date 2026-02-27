@@ -1,7 +1,7 @@
 package com.cfkiatong.springbootbankingapp.controller;
 
-import com.cfkiatong.springbootbankingapp.dto.GetAccountResponse;
-import com.cfkiatong.springbootbankingapp.dto.ChangeAccountOwnerRequest;
+import com.cfkiatong.springbootbankingapp.dto.response.GetAccountResponse;
+import com.cfkiatong.springbootbankingapp.dto.request.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.services.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

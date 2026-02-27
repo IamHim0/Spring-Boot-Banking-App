@@ -1,9 +1,9 @@
 package com.cfkiatong.springbootbankingapp.services;
 
-import com.cfkiatong.springbootbankingapp.dto.CreateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.request.CreateUserRequest;
 import com.cfkiatong.springbootbankingapp.dto.Mapper;
-import com.cfkiatong.springbootbankingapp.dto.UpdateUserRequest;
-import com.cfkiatong.springbootbankingapp.dto.UserResponse;
+import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;

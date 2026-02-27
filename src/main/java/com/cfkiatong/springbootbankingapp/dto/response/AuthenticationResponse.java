@@ -1,4 +1,4 @@
-package com.cfkiatong.springbootbankingapp.authentication;
+package com.cfkiatong.springbootbankingapp.dto.response;
 
 public class AuthenticationResponse {
 

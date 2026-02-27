@@ -1,4 +1,4 @@
-package com.cfkiatong.springbootbankingapp.dto;
+package com.cfkiatong.springbootbankingapp.dto.response;
 
 import java.math.BigDecimal;
 import java.util.UUID;
