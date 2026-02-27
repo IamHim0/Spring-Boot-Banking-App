@@ -1,68 +1,76 @@
 package com.cfkiatong.springbootbankingapp.services;
 
-import com.cfkiatong.springbootbankingapp.dto.request.CreateUserRequest;
 import com.cfkiatong.springbootbankingapp.dto.Mapper;
 import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
+import com.cfkiatong.springbootbankingapp.entity.Account;
+import com.cfkiatong.springbootbankingapp.entity.Transaction;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
-import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
+import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
+import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UserEntityService {
+public class AdminService {
 
     private final UserEntityRepository userEntityRepository;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
     private final Mapper mapper;
 
-    public UserEntityService(
+    public AdminService(
             UserEntityRepository userEntityRepository,
+            AccountRepository accountRepository,
+            TransactionRepository transactionRepository,
             PasswordEncoder passwordEncoder,
             Mapper mapper) {
         this.userEntityRepository = userEntityRepository;
+        this.accountRepository = accountRepository;
+        this.transactionRepository = transactionRepository;
         this.passwordEncoder = passwordEncoder;
         this.mapper = mapper;
     }
 
-    private UserEntity findUserEntity(UUID userId) {
-        return userEntityRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId.toString()));
+    private UserEntity findUserEntity(String username) {
+        return userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
     }
 
-    public UserResponse createUser(CreateUserRequest createUserRequest) {
+    public List<UserEntity> getAllUsers() {
+        return userEntityRepository.findAll();
 
-        UserEntity user = new UserEntity(
-                createUserRequest.getFirstName(),
-                createUserRequest.getLastName(),
-                createUserRequest.getEmail(),
-                createUserRequest.getUsername(),
-                passwordEncoder.encode(createUserRequest.getPassword()),
-                createUserRequest.getRoles(),
-                null
-        );
-
-        userEntityRepository.save(user);
-
-        return mapper.mapToUserResponse(user);
     }
 
-    public UserResponse getUser(UUID userId) {
-        UserEntity userEntity = findUserEntity(userId);
-
-        return mapper.mapToUserResponse(userEntity);
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
     }
 
-    @Transactional
-    public UserResponse updateUser(UUID userId, UpdateUserRequest updateUserRequest) {
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
+    }
 
-        UserEntity userEntity = findUserEntity(userId);
+    public UserEntity getUser(String username) {
+        return userEntityRepository.findByUsername(username).orElseThrow();
+    }
+
+    public Account getAccount(UUID accountId) {
+        return accountRepository.findById(accountId).orElseThrow();
+    }
+
+    public Transaction getTransaction(UUID transactionId) {
+        return transactionRepository.findById(transactionId).orElseThrow();
+    }
+
+    public UserResponse updateUser(String username, UpdateUserRequest updateUserRequest) {
+        UserEntity userEntity = findUserEntity(username);
+
 
         if (updateUserRequest.getNewUsername() != null) {
             userEntity.setUsername(updateUserRequest.getNewUsername());
@@ -86,12 +94,6 @@ public class UserEntityService {
 
         return mapper.mapToUserResponse(userEntity);
 
-    }
-
-    public void deleteUser(UUID userId) {
-        UserEntity userEntity = findUserEntity(userId);
-
-        userEntityRepository.delete(userEntity);
     }
 
 }
