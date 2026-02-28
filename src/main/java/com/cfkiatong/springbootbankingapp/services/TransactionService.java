@@ -1,8 +1,8 @@
 package com.cfkiatong.springbootbankingapp.services;
 
 import com.cfkiatong.springbootbankingapp.dto.request.TransactionRequest;
-import com.cfkiatong.springbootbankingapp.dto.response.GetBalanceResponse;
-import com.cfkiatong.springbootbankingapp.dto.response.TransactionDTO;
+import com.cfkiatong.springbootbankingapp.dto.response.BalanceResponse;
+import com.cfkiatong.springbootbankingapp.dto.response.TransactionResponse;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.dto.*;
 import com.cfkiatong.springbootbankingapp.entity.Transaction;
@@ -45,18 +45,18 @@ public class TransactionService {
         return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    public GetBalanceResponse getBalance(UUID ownerID, UUID accountId) {
+    public BalanceResponse getBalance(UUID ownerID, UUID accountId) {
         Account account = findAccount(accountId);
 
         if (!account.getAccountOwner().getUserId().equals(ownerID)) {
             throw new ForbiddenException();
         }
 
-        return mapper.mapToViewBalanceResponse(account);
+        return mapper.mapToBalanceResponse(account);
     }
 
     @Transactional
-    public GetBalanceResponse makeTransaction(UUID ownerId, UUID accountId, TransactionRequest transactionRequest) {
+    public BalanceResponse makeTransaction(UUID ownerId, UUID accountId, TransactionRequest transactionRequest) {
         TransactionType type = transactionRequest.getType();
 
         Account account = findAccount(accountId);
@@ -118,10 +118,10 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        return mapper.mapToViewBalanceResponse(account);
+        return mapper.mapToBalanceResponse(account);
     }
 
-    public List<TransactionDTO> getUserTransactions(UUID ownerId) {
+    public List<TransactionResponse> getUserTransactions(UUID ownerId) {
         UserEntity user = userEntityRepository.findById(ownerId).orElseThrow();
 
         List<Account> accounts = user.getAccounts();
@@ -134,7 +134,7 @@ public class TransactionService {
             transactions.addAll(getAccountTransactions(accountId));
         }
 
-        return transactions.stream().distinct().map(TransactionDTO::new).toList();
+        return transactions.stream().distinct().map(mapper::mapToTransactionDTO).toList();
     }
 
     private List<Transaction> getAccountTransactions(UUID accountId) {
@@ -144,7 +144,7 @@ public class TransactionService {
         return transactions;
     }
 
-    public List<TransactionDTO> getAccountTransactions(UUID ownerId, UUID accountId) {
+    public List<TransactionResponse> getAccountTransactions(UUID ownerId, UUID accountId) {
         Account account = findAccount(accountId);
 
         if (!account.getAccountOwner().getUserId().equals(ownerId)) {
@@ -154,7 +154,7 @@ public class TransactionService {
         List<Transaction> transactions = transactionRepository.findBySourceAccount(accountId);
         transactions.addAll(transactionRepository.findByTargetAccount(accountId));
 
-        return transactions.stream().map(TransactionDTO::new).toList();
+        return transactions.stream().map(mapper::mapToTransactionDTO).toList();
     }
 
 }

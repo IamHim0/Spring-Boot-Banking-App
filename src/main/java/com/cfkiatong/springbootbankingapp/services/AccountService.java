@@ -1,6 +1,6 @@
 package com.cfkiatong.springbootbankingapp.services;
 
-import com.cfkiatong.springbootbankingapp.dto.response.GetAccountResponse;
+import com.cfkiatong.springbootbankingapp.dto.response.AccountResponse;
 import com.cfkiatong.springbootbankingapp.dto.request.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.dto.Mapper;
 import com.cfkiatong.springbootbankingapp.entity.Account;
@@ -33,28 +33,28 @@ public class AccountService {
         return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
-    public GetAccountResponse createAccount(UUID ownerId) {
+    public AccountResponse createAccount(UUID ownerId) {
         UserEntity accountOwner = userEntityRepository.findById(ownerId).orElseThrow();
 
         Account account = new Account(accountOwner);
 
         accountRepository.save(account);
 
-        return mapper.mapToViewAccountResponse(account);
+        return mapper.mapToAccountResponse(account);
     }
 
-    public GetAccountResponse getAccount(UUID accountOwnerId, UUID accountId) {
+    public AccountResponse getAccount(UUID accountOwnerId, UUID accountId) {
         Account account = findAccount(accountId);
 
         if (!account.getAccountOwner().getUserId().equals(accountOwnerId)) {
             throw new ForbiddenException();
         }
 
-        return mapper.mapToViewAccountResponse(account);
+        return mapper.mapToAccountResponse(account);
     }
 
     @Transactional
-    public GetAccountResponse changeAccountOwner(UUID accountOwnerId, UUID accountId, ChangeAccountOwnerRequest changeAccountOwnerRequest) {
+    public AccountResponse changeAccountOwner(UUID accountOwnerId, UUID accountId, ChangeAccountOwnerRequest changeAccountOwnerRequest) {
         Account account = findAccount(accountId);
         UUID currentOwnerId = account.getAccountOwner().getUserId();
 
@@ -75,13 +75,15 @@ public class AccountService {
 
         account.setAccountOwner(newOwner);
 
-        return mapper.mapToViewAccountResponse(account);
+        return mapper.mapToAccountResponse(account);
     }
 
-    public void deleteAccount(UUID id) {
-        if (findAccount(id) != null) {
-            accountRepository.deleteById(id);
+    public void deleteAccount(UUID ownerId, UUID accountId) {
+        if (!findAccount(accountId).getAccountOwner().getUserId().equals(ownerId)) {
+            throw new ForbiddenException();
         }
+
+        accountRepository.deleteById(accountId);
     }
 
 }

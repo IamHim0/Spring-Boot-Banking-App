@@ -7,6 +7,7 @@ import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
 import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,7 +34,11 @@ public class UserEntityService {
     }
 
     private UserEntity findUserEntity(UUID userId) {
-        return userEntityRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(userId.toString()));
+        return userEntityRepository.findById(userId).orElseThrow();
+    }
+
+    private UserEntity findUserEntity(String username) {
+        return userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
     }
 
     public UserResponse createUser(CreateUserRequest createUserRequest) {
@@ -60,10 +65,20 @@ public class UserEntityService {
     }
 
     @Transactional
-    public UserResponse updateUser(UUID userId, UpdateUserRequest updateUserRequest) {
+    public UserResponse updateUser(String username, UpdateUserRequest updateUserRequest) {
+        UserEntity userEntity = findUserEntity(username);
 
+        return applyUserUpdates(userEntity, updateUserRequest);
+    }
+
+    @Transactional
+    public UserResponse updateUser(UUID userId, UpdateUserRequest updateUserRequest) {
         UserEntity userEntity = findUserEntity(userId);
 
+        return applyUserUpdates(userEntity, updateUserRequest);
+    }
+
+    private UserResponse applyUserUpdates(UserEntity userEntity, UpdateUserRequest updateUserRequest) {
         if (updateUserRequest.getNewUsername() != null) {
             userEntity.setUsername(updateUserRequest.getNewUsername());
         }

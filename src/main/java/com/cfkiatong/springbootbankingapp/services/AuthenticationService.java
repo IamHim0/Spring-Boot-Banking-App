@@ -34,7 +34,7 @@ public class AuthenticationService {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         if (authentication.isAuthenticated()) {
-            return mapToAuthenticationResponse(jwtService.generateToken(principal.getId().toString()));
+            return mapToAuthenticationResponse(jwtService.generateToken(principal));
         } else {
             return null;
         }

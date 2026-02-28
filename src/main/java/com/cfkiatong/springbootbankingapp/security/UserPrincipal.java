@@ -1,13 +1,16 @@
 package com.cfkiatong.springbootbankingapp.security;
 
+import com.cfkiatong.springbootbankingapp.dto.Role;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class UserPrincipal implements UserDetails {
@@ -15,6 +18,7 @@ public class UserPrincipal implements UserDetails {
     private final UUID id;
     private final String username;
     private final String password;
+    private final Set<Role> roles;
 
 //    public UserPrincipal(Account account) {
 //        this.id = account.getId();
@@ -26,6 +30,7 @@ public class UserPrincipal implements UserDetails {
         this.id = userEntity.getUserId();
         this.username = userEntity.getUsername();
         this.password = userEntity.getPassword();
+        this.roles = userEntity.getRoles();
     }
 
     public UUID getId() {
@@ -44,7 +49,8 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.name()))
+                .toList();
     }
 
     @Override

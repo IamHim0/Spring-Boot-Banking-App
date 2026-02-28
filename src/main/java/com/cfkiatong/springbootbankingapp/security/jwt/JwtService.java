@@ -1,8 +1,10 @@
 package com.cfkiatong.springbootbankingapp.security.jwt;
 
+import com.cfkiatong.springbootbankingapp.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -15,11 +17,12 @@ public class JwtService {
 
     private String superSecretKey = "mysuperlongrandomsecretkeyatleast256bitslong";
 
-    public String generateToken(String id) {
+    public String generateToken(UserPrincipal userPrincipal) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
-                .subject(id)
-                .claim("roles", List.of("admin") )
+                .subject(userPrincipal.getId().toString())
+//                .claim("roles", List.of("ADMIN"))
+                .claim("roles", userPrincipal.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000 * 2))
                 .signWith(getKey())

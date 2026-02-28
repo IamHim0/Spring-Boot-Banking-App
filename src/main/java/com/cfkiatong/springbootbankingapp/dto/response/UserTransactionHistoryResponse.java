@@ -4,13 +4,13 @@ import java.util.List;
 
 public class UserTransactionHistoryResponse {
 
-    List<TransactionDTO> transactions;
+    List<TransactionResponse> transactions;
 
-    public UserTransactionHistoryResponse(List<TransactionDTO> transactions) {
+    public UserTransactionHistoryResponse(List<TransactionResponse> transactions) {
         this.transactions = transactions;
     }
 
-    public List<TransactionDTO> getTransactions() {
+    public List<TransactionResponse> getTransactions() {
         return transactions;
     }
 }
