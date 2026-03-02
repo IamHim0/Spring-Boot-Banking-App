@@ -1,6 +1,7 @@
 package com.cfkiatong.springbootbankingapp.security;
 
 import com.cfkiatong.springbootbankingapp.dto.Role;
+import com.cfkiatong.springbootbankingapp.dto.UserStatus;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import org.jspecify.annotations.Nullable;
@@ -18,18 +19,14 @@ public class UserPrincipal implements UserDetails {
     private final UUID id;
     private final String username;
     private final String password;
+    private final UserStatus userStatus;
     private final Set<Role> roles;
-
-//    public UserPrincipal(Account account) {
-//        this.id = account.getId();
-//        this.username = account.getUsername();
-//        this.password = account.getPassword();
-//    }
 
     public UserPrincipal(UserEntity userEntity) {
         this.id = userEntity.getUserId();
         this.username = userEntity.getUsername();
         this.password = userEntity.getPassword();
+        this.userStatus = userEntity.getUserStatus();
         this.roles = userEntity.getRoles();
     }
 
@@ -59,18 +56,18 @@ public class UserPrincipal implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
     public boolean isCredentialsNonExpired() {
         return UserDetails.super.isCredentialsNonExpired();
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return userStatus == UserStatus.ACTIVE;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return userStatus != UserStatus.LOCKED;
     }
 
 }

@@ -1,9 +1,10 @@
 package com.cfkiatong.springbootbankingapp.entity;
 
+import com.cfkiatong.springbootbankingapp.dto.UserStatus;
 import com.cfkiatong.springbootbankingapp.dto.Role;
+import com.cfkiatong.springbootbankingapp.exception.business.UserInactiveException;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,6 +29,8 @@ public class UserEntity {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
+    @Column(nullable = false)
+    private UserStatus userStatus;
     @OneToMany(mappedBy = "accountOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
 
@@ -42,6 +45,7 @@ public class UserEntity {
         this.username = username;
         this.password = password;
         this.roles = roles;
+        this.userStatus = UserStatus.ACTIVE;
         this.accounts = accounts;
     }
 
@@ -108,4 +112,31 @@ public class UserEntity {
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
     }
+
+    public UserStatus getUserStatus() {
+        return userStatus;
+    }
+
+    public void assertActive() {
+        if (this.userStatus != UserStatus.ACTIVE) {
+            throw new UserInactiveException(this.username);
+        }
+    }
+
+    public void activateUser() {
+        this.userStatus = UserStatus.ACTIVE;
+    }
+
+    public void disableUser() {
+        this.userStatus = UserStatus.DISABLED;
+    }
+
+    public void lockUser() {
+        this.userStatus = UserStatus.LOCKED;
+    }
+
+    public void deleteUser() {
+        this.userStatus = UserStatus.DELETED;
+    }
+
 }

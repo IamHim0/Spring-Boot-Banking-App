@@ -2,6 +2,7 @@ package com.cfkiatong.springbootbankingapp.controller;
 
 import com.cfkiatong.springbootbankingapp.dto.request.UpdateRolesRequest;
 import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserStatusRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.AccountResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.TransactionResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
@@ -64,6 +65,18 @@ public class AdminController {
         }
 
         return ResponseEntity.ok(adminService.updateUser(username, updateUserRequest));
+    }
+
+    @PatchMapping("/users/{username}/status")
+    public ResponseEntity<UserResponse> updateUserStatus(@PathVariable String username, @Valid @RequestBody UpdateUserStatusRequest updateUserStatusRequest) {
+        return ResponseEntity.ok(adminService.updateUserStatus(username, updateUserStatusRequest));
+    }
+
+    @PatchMapping("/users/{username}/password")
+    public ResponseEntity<Void> lockUser(@PathVariable String username) {
+        adminService.lockUser(username);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/users/{username}")

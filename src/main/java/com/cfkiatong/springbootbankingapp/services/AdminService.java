@@ -4,12 +4,14 @@ import com.cfkiatong.springbootbankingapp.dto.Mapper;
 import com.cfkiatong.springbootbankingapp.dto.Role;
 import com.cfkiatong.springbootbankingapp.dto.request.UpdateRolesRequest;
 import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserRequest;
+import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserStatusRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.AccountResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.TransactionResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.UserRolesResponse;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.business.UpdateUserRoleException;
+import com.cfkiatong.springbootbankingapp.exception.business.UpdateUserStatusException;
 import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
@@ -73,13 +75,34 @@ public class AdminService {
         return mapper.mapToTransactionDTO(transactionRepository.findById(transactionId).orElseThrow());
     }
 
-    public UserResponse updateUser(String username, UpdateUserRequest updateUserRequest) {
-        return userEntityService.updateUser(username, updateUserRequest);
+    public UserResponse updateUserStatus(String username, UpdateUserStatusRequest updateUserStatusRequest) {
+        switch (updateUserStatusRequest.newUserStatus().toString()) {
+            case "ACTIVE" -> {
+                return userEntityService.activateUser(username);
+            }
+            case "DISABLED" -> {
+                return userEntityService.disableUser(username);
+            }
+            case "DELETED" -> {
+                throw new UpdateUserStatusException("User cannot be deleted. Use the delete endpoint instead.");
+            }
+            case "LOCKED" -> {
+                throw new UpdateUserStatusException("User cannot be locked. Use the lock endpoint instead.");
+            }
+            default -> throw new UpdateUserStatusException("Invalid status. Must be 'ACTIVATE' or 'DEACTIVATE'.");
+        }
+    }
+
+    public void lockUser(String username) {
+        userEntityService.lockUser(username);
     }
 
     public void deleteUser(String username) {
-        UserEntity userEntity = findUserEntity(username);
-        userEntityRepository.delete(userEntity);
+        userEntityService.deleteUser(username);
+    }
+
+    public UserResponse updateUser(String username, UpdateUserRequest updateUserRequest) {
+        return userEntityService.updateUser(username, updateUserRequest);
     }
 
     @Transactional

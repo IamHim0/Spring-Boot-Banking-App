@@ -1,5 +1,6 @@
 package com.cfkiatong.springbootbankingapp.config;
 
+import com.cfkiatong.springbootbankingapp.security.CustomAuthenticationEntryPoint;
 import com.cfkiatong.springbootbankingapp.security.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,14 +21,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfiguration {
 
     private final UserDetailsService userDetailsService;
     private final JwtFilter jwtFilter;
+    private final CustomAuthenticationEntryPoint customAuthEntryPoint;
 
-    public SecurityConfiguration(UserDetailsService userDetailsService, JwtFilter jwtFilter) {
+    public SecurityConfiguration(UserDetailsService userDetailsService, JwtFilter jwtFilter, CustomAuthenticationEntryPoint customAuthEntryPoint) {
         this.userDetailsService = userDetailsService;
         this.jwtFilter = jwtFilter;
+        this.customAuthEntryPoint = customAuthEntryPoint;
     }
 
     @Bean
@@ -63,6 +68,10 @@ public class SecurityConfiguration {
         //Postman log-in
         http.httpBasic(Customizer.withDefaults());
 
+        //Custom AuthenticationEntryPoint
+        http.exceptionHandling(exception ->
+                exception.authenticationEntryPoint(customAuthEntryPoint));
+
         http.sessionManagement(
                         session
                                 -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -74,23 +83,5 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    //Default Users implementation
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        UserDetails user = User.
-//                withDefaultPasswordEncoder().
-//                username("uname").
-//                password("password")
-//                .roles("USER")
-//                .build();
-//
-//        UserDetails user1 = User.
-//                withDefaultPasswordEncoder().
-//                username("uname1").
-//                password("password1")
-//                .roles("USER")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(user, user1);
-//    }
+
 }

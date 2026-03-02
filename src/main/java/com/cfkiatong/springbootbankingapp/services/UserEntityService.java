@@ -1,16 +1,15 @@
 package com.cfkiatong.springbootbankingapp.services;
 
+import com.cfkiatong.springbootbankingapp.dto.UserStatus;
 import com.cfkiatong.springbootbankingapp.dto.request.CreateUserRequest;
 import com.cfkiatong.springbootbankingapp.dto.Mapper;
 import com.cfkiatong.springbootbankingapp.dto.request.UpdateUserRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
-import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
-import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.UpdateUserStatusException;
 import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.apache.catalina.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,10 +102,59 @@ public class UserEntityService {
 
     }
 
-    public void deleteUser(UUID userId) {
-        UserEntity userEntity = findUserEntity(userId);
+    @Transactional
+    public UserResponse activateUser(String username) {
+        UserEntity userEntity = findUserEntity(username);
 
-        userEntityRepository.delete(userEntity);
+        if (userEntity.getUserStatus() == UserStatus.ACTIVE) {
+            throw new UpdateUserStatusException("User is already active, no changes made.");
+        }
+
+        userEntity.activateUser();
+
+        return mapper.mapToUserResponse(userEntity);
+    }
+
+    @Transactional
+    public UserResponse disableUser(String username) {
+        UserEntity userEntity = findUserEntity(username);
+
+        if (userEntity.getUserStatus() == UserStatus.DISABLED) {
+            throw new UpdateUserStatusException("User is already disabled, no changes made.");
+        }
+
+        userEntity.disableUser();
+
+        return mapper.mapToUserResponse(userEntity);
+    }
+
+    @Transactional
+    public void lockUser(String username) {
+        UserEntity userEntity = findUserEntity(username);
+
+        if (userEntity.getUserStatus() == UserStatus.LOCKED) {
+            throw new UpdateUserStatusException("User is already locked, no changes made.");
+        }
+
+        userEntity.lockUser();
+    }
+
+    @Transactional
+    public void deleteUser(UUID userId) {
+        applyDeleteUser(findUserEntity(userId));
+    }
+
+    @Transactional
+    public void deleteUser(String username) {
+        applyDeleteUser(findUserEntity(username));
+    }
+
+    private void applyDeleteUser(UserEntity userEntity) {
+        if (userEntity.getUserStatus() == UserStatus.DELETED) {
+            throw new UpdateUserStatusException("User is already deleted, no changes made.");
+        }
+
+        userEntity.deleteUser();
     }
 
 }
