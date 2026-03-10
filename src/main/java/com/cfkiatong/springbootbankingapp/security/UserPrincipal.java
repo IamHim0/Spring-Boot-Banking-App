@@ -7,8 +7,10 @@ import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,8 @@ public class UserPrincipal implements UserDetails {
     private final String username;
     private final String password;
     private final UserStatus userStatus;
+    private final int failedLoginAttempts;
+    private LocalDateTime unlocksAt;
     private final Set<Role> roles;
 
     public UserPrincipal(UserEntity userEntity) {
@@ -27,6 +31,8 @@ public class UserPrincipal implements UserDetails {
         this.username = userEntity.getUsername();
         this.password = userEntity.getPassword();
         this.userStatus = userEntity.getUserStatus();
+        this.failedLoginAttempts = userEntity.getFailedLoginAttempts();
+        this.unlocksAt = userEntity.getUnlocksAt();
         this.roles = userEntity.getRoles();
     }
 
@@ -42,6 +48,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public @Nullable String getPassword() {
         return password;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
     }
 
     @Override
@@ -67,6 +77,10 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
+        if (unlocksAt != null && LocalDateTime.now().isAfter(unlocksAt)) {
+            return true;
+        }
+
         return userStatus != UserStatus.LOCKED;
     }
 

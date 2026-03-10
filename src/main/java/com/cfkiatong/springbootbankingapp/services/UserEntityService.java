@@ -8,6 +8,7 @@ import com.cfkiatong.springbootbankingapp.dto.response.UserResponse;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import com.cfkiatong.springbootbankingapp.exception.business.UpdateUserStatusException;
 import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import org.apache.catalina.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,6 +42,10 @@ public class UserEntityService {
     }
 
     public UserResponse createUser(CreateUserRequest createUserRequest) {
+
+        if (userEntityRepository.existsByUsername(createUserRequest.getUsername())) {
+            throw new UsernameUnavailableException(createUserRequest.getUsername());
+        }
 
         UserEntity user = new UserEntity(
                 createUserRequest.getFirstName(),

@@ -1,6 +1,7 @@
 package com.cfkiatong.springbootbankingapp.dto.request;
 
 import com.cfkiatong.springbootbankingapp.dto.TransactionType;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,6 +15,7 @@ public class TransactionRequest {
 
     @NotNull(message = "transaction amount cannot be empty")
     @DecimalMin(value = "100", message = "transaction amount must be at least ₱ 100")
+    @DecimalMax(value = "10000", message = "cannot make transactions worth over ₱ 10,000")
     private BigDecimal amount;
 
     private UUID targetAccountId;
@@ -41,5 +43,5 @@ public class TransactionRequest {
     public void setTargetAccountId(UUID targetAccountId) {
         this.targetAccountId = targetAccountId;
     }
-    
+
 }

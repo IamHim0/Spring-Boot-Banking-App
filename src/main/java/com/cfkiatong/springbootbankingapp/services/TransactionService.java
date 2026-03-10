@@ -41,16 +41,17 @@ public class TransactionService {
         this.mapper = mapper;
     }
 
-    private Account findAccount(UUID id) {
-        return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
-    }
+    private Account findAndValidateAccount(UUID ownerId, UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
 
-    public BalanceResponse getBalance(UUID ownerID, UUID accountId) {
-        Account account = findAccount(accountId);
-
-        if (!account.getAccountOwner().getUserId().equals(ownerID)) {
+        if (!account.getAccountOwner().getUserId().equals(ownerId)) {
             throw new ForbiddenException();
         }
+        return account;
+    }
+
+    public BalanceResponse getBalance(UUID ownerId, UUID accountId) {
+        Account account = findAndValidateAccount(ownerId, accountId);
 
         return mapper.mapToBalanceResponse(account);
     }
@@ -59,12 +60,8 @@ public class TransactionService {
     public BalanceResponse makeTransaction(UUID ownerId, UUID accountId, TransactionRequest transactionRequest) {
         TransactionType type = transactionRequest.getType();
 
-        Account account = findAccount(accountId);
+        Account account = findAndValidateAccount(ownerId, accountId);
         UUID targetAccId = null;
-
-        if (!account.getAccountOwner().getUserId().equals(ownerId)) {
-            throw new ForbiddenException();
-        }
 
         BigDecimal sourceBalanceBefore = account.getBalance();
 
@@ -95,7 +92,9 @@ public class TransactionService {
             case TRANSFER:
                 withdraw.accept(transactionRequest.getAmount());
 
-                Account targetAccount = findAccount(transactionRequest.getTargetAccountId());
+                Account targetAccount =
+                        accountRepository.findById(transactionRequest.getTargetAccountId())
+                                .orElseThrow(() -> new AccountNotFoundException(transactionRequest.getTargetAccountId()));
                 targetAccId = targetAccount.getId();
                 targetBalanceBefore = targetAccount.getBalance();
 
@@ -145,11 +144,7 @@ public class TransactionService {
     }
 
     public List<TransactionResponse> getAccountTransactions(UUID ownerId, UUID accountId) {
-        Account account = findAccount(accountId);
-
-        if (!account.getAccountOwner().getUserId().equals(ownerId)) {
-            throw new ForbiddenException();
-        }
+        Account account = findAndValidateAccount(ownerId, accountId);
 
         List<Transaction> transactions = transactionRepository.findBySourceAccount(accountId);
         transactions.addAll(transactionRepository.findByTargetAccount(accountId));

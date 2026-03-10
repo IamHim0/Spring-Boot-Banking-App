@@ -5,6 +5,7 @@ import com.cfkiatong.springbootbankingapp.dto.Role;
 import com.cfkiatong.springbootbankingapp.exception.business.UserInactiveException;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -33,6 +34,10 @@ public class UserEntity {
     private UserStatus userStatus;
     @OneToMany(mappedBy = "accountOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Account> accounts;
+    @Column(nullable = false)
+    private int failedLoginAttempts = 0;
+    @Column
+    private LocalDateTime unlocksAt = null;
 
     public UserEntity() {
 
@@ -121,6 +126,22 @@ public class UserEntity {
         if (this.userStatus != UserStatus.ACTIVE) {
             throw new UserInactiveException(this.username);
         }
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public LocalDateTime getUnlocksAt() {
+        return unlocksAt;
+    }
+
+    public void setUnlocksAt(LocalDateTime unlocksAt) {
+        this.unlocksAt = unlocksAt;
     }
 
     public void activateUser() {

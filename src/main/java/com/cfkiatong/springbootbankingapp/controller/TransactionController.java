@@ -44,13 +44,13 @@ public class TransactionController {
     }
 
     @GetMapping("/userhistory")
-    public List<TransactionResponse> getUserTransactions(@AuthenticationPrincipal UserDetails userDetails) {
-        return transactionService.getUserTransactions(UUID.fromString(userDetails.getUsername()));
+    public ResponseEntity<List<TransactionResponse>> getUserTransactions(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(transactionService.getUserTransactions(UUID.fromString(userDetails.getUsername())));
     }
 
     @GetMapping("/accounthistory")
-    public List<TransactionResponse> getAccountTransactions(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
-        return transactionService.getAccountTransactions(UUID.fromString(userDetails.getUsername()), accountId);
+    public ResponseEntity<List<TransactionResponse>> getAccountTransactions(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
+        return ResponseEntity.ok(transactionService.getAccountTransactions(UUID.fromString(userDetails.getUsername()), accountId));
     }
 
 }
