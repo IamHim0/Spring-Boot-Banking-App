@@ -67,7 +67,7 @@ public class AccountService {
                         changeAccountOwnerRequest.getNewAccountOwner())
                 .orElseThrow(() -> new UserNotFoundException(changeAccountOwnerRequest.getNewAccountOwner()));
 
-        UUID newOwnerId = account.getAccountOwner().getUserId();
+        UUID newOwnerId = newOwner.getUserId();
 
         if (currentOwnerId.equals(newOwnerId)) {
             throw new InvalidAccountStateException("New owner must be different from current owner");

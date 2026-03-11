@@ -1,4 +1,4 @@
-package com.cfkiatong.springbootbankingapp.dto.response;
+package com.cfkiatong.springbootbankingapp.dto;
 
 public enum AccountStatus {
     ACTIVE,

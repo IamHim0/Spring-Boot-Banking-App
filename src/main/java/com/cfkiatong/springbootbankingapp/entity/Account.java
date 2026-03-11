@@ -18,7 +18,7 @@ public class Account {
     @JoinColumn(name = "account_owner_user_id")
     private UserEntity accountOwner;
 
-    protected Account() {
+    public Account() {
 
     }
 
