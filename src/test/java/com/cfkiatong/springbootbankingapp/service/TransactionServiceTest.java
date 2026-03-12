@@ -12,6 +12,7 @@ import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundExce
 import com.cfkiatong.springbootbankingapp.exception.business.InsufficientBalanceException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.TransactionRepository;
+import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import com.cfkiatong.springbootbankingapp.services.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,13 +34,13 @@ import static org.mockito.Mockito.*;
 class TransactionServiceTest {
 
     @Mock
+    private UserEntityRepository userEntityRepository;
+    @Mock
     private AccountRepository accountRepository;
     @Mock
     private TransactionRepository transactionRepository;
-    @Mock
-    private Mapper mapper;
 
-    @InjectMocks
+    private Mapper mapper;
     private TransactionService transactionService;
 
     private UUID ownerId;
@@ -49,6 +50,15 @@ class TransactionServiceTest {
 
     @BeforeEach
     void setup() {
+        mapper = new Mapper();
+
+        transactionService = new TransactionService(
+                userEntityRepository,
+                accountRepository,
+                transactionRepository,
+                mapper
+        );
+
         //ARRANGE
         ownerId = UUID.randomUUID();
         userEntity = new UserEntity();
@@ -62,60 +72,57 @@ class TransactionServiceTest {
     }
 
     @Test
-    void shouldReturnBalanceResponse() {
+    void getBalance_validOwner_returnBalanceResponse() {
         BalanceResponse expectedResponse = new BalanceResponse(new BigDecimal("10000"));
-        when(mapper.mapToBalanceResponse(account)).thenReturn(expectedResponse);
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
         //ACT
         BalanceResponse result = transactionService.getBalance(ownerId, account.getId());
 
         //ASSERT
-        assertEquals(new BigDecimal("10000"), result.balance());
+        assertEquals(expectedResponse, result);
     }
 
     @Test
-    void shouldIncreaseBalanceAndSaveTransaction() {
+    void makeDeposit_validRequest_returnBalanceResponse() {
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setType(TransactionType.DEPOSIT);
         transactionRequest.setAmount(new BigDecimal("5000"));
 
         BalanceResponse expectedResponse = new BalanceResponse(new BigDecimal("15000"));
-        when(mapper.mapToBalanceResponse(account)).thenReturn(expectedResponse);
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
         //ACT
         BalanceResponse result = transactionService.makeTransaction(ownerId, accountId, transactionRequest);
 
         //ASSERT
-        assertEquals(new BigDecimal("15000"), result.balance());
+        assertEquals(expectedResponse, result);
 
         //VERIFY
         verify(transactionRepository).save(any(Transaction.class));
     }
 
     @Test
-    void shouldDecreaseBalanceAndSaveTransaction() {
+    void makeWithdrawal_validRequest_returnBalanceResponse() {
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setType(TransactionType.WITHDRAWAL);
         transactionRequest.setAmount(new BigDecimal("5000"));
 
         BalanceResponse expectedResponse = new BalanceResponse(new BigDecimal("5000"));
-        when(mapper.mapToBalanceResponse(account)).thenReturn(expectedResponse);
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
         //ACT
         BalanceResponse result = transactionService.makeTransaction(ownerId, accountId, transactionRequest);
 
         //ASSERT
-        assertEquals(new BigDecimal("5000"), result.balance());
+        assertEquals(expectedResponse, result);
 
         //VERIFY
         verify(transactionRepository).save(any(Transaction.class));
     }
 
     @Test
-    void shouldDecreaseAccountBalanceIncreaseTargetAccountBalanceAndSaveTransaction() {
+    void makeTransfer_validRequest_returnBalanceResponse() {
         UUID targetAccountId = UUID.randomUUID();
         Account targetAccount = new Account();
         targetAccount.setId(targetAccountId);
@@ -127,7 +134,6 @@ class TransactionServiceTest {
         transactionRequest.setTargetAccountId(targetAccountId);
 
         BalanceResponse expectedResponse = new BalanceResponse(new BigDecimal("5000"));
-        when(mapper.mapToBalanceResponse(account)).thenReturn(expectedResponse);
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
         when(accountRepository.findById(targetAccountId)).thenReturn(Optional.of(targetAccount));
 
@@ -135,14 +141,14 @@ class TransactionServiceTest {
         BalanceResponse result = transactionService.makeTransaction(ownerId, accountId, transactionRequest);
 
         //ASSERT
-        assertEquals(new BigDecimal("5000"), result.balance());
+        assertEquals(expectedResponse, result);
 
         //VERIFY
         verify(transactionRepository).save(any(Transaction.class));
     }
 
     @Test
-    void shouldThrowInsufficientBalanceException_whenBalanceInsufficient() {
+    void makeWithdrawal_insufficientBalance_throwInsufficientBalanceException() {
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setType(TransactionType.WITHDRAWAL);
         transactionRequest.setAmount(new BigDecimal("15000"));
@@ -157,7 +163,7 @@ class TransactionServiceTest {
     }
 
     @Test
-    void shouldThrowForbiddenException_whenUserDoesNotOwnAccount() {
+    void makeTransaction_wrongOwner_throwForbiddenException() {
         UUID wrongOwnerId = UUID.randomUUID();
 
         TransactionRequest transactionRequest = new TransactionRequest();
@@ -166,13 +172,14 @@ class TransactionServiceTest {
 
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
-        assertThrows(ForbiddenException.class, () -> transactionService.makeTransaction(wrongOwnerId, accountId, transactionRequest));
+        assertThrows(ForbiddenException.class, () ->
+                transactionService.makeTransaction(wrongOwnerId, accountId, transactionRequest));
 
         verify(transactionRepository, never()).save(any());
     }
 
     @Test
-    void shouldThrowAccountNotFoundException_whenAccountDoesNotExist() {
+    void findAccount_nonexistentAccount_throwAccountNotFoundException() {
         UUID nonExistentAccountId = UUID.randomUUID();
 
         TransactionRequest transactionRequest = new TransactionRequest();
@@ -181,13 +188,14 @@ class TransactionServiceTest {
 
         when(accountRepository.findById(nonExistentAccountId)).thenReturn(Optional.empty());
 
-        assertThrows(AccountNotFoundException.class, () -> transactionService.makeTransaction(ownerId, nonExistentAccountId, transactionRequest));
+        assertThrows(AccountNotFoundException.class, () ->
+                transactionService.makeTransaction(ownerId, nonExistentAccountId, transactionRequest));
 
         verify(transactionRepository, never()).save(any());
     }
 
     @Test
-    void shouldThrowAccountNotFoundException_whenTargetAccountDoesNotExist() {
+    void makeTransfer_nonExistentTargetAccount_throwAccountNotFoundException() {
         UUID nonExistentTargetAccountId = UUID.randomUUID();
 
         TransactionRequest transactionRequest = new TransactionRequest();

@@ -50,9 +50,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse mapToAuthenticationResponse(String token) {
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
-
-        authenticationResponse.setJwtToken(token);
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse(token);
 
         return authenticationResponse;
     }

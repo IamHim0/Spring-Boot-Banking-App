@@ -3,6 +3,7 @@ package com.cfkiatong.springbootbankingapp.controller;
 import com.cfkiatong.springbootbankingapp.dto.response.AccountResponse;
 import com.cfkiatong.springbootbankingapp.dto.request.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.services.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,7 @@ public class AccountController {
     public ResponseEntity<AccountResponse> createAccount(@AuthenticationPrincipal UserDetails userDetails) {
         AccountResponse accountResponse = accountService.createAccount(UUID.fromString(userDetails.getUsername()));
 
-        return ResponseEntity.created(URI.create("/api/v1/users/me/accounts/" + accountResponse.getId())).body(accountResponse);
+        return ResponseEntity.created(URI.create("/api/v1/users/me/accounts/" + accountResponse.accountId())).body(accountResponse);
     }
 
     @GetMapping("/{accountId}")
@@ -36,7 +37,7 @@ public class AccountController {
     }
 
     @PatchMapping("/{accountId}")
-    public ResponseEntity<AccountResponse> changeAccountOwner(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @RequestBody ChangeAccountOwnerRequest changeAccountOwnerRequest) {
+    public ResponseEntity<AccountResponse> changeAccountOwner(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @Valid @RequestBody ChangeAccountOwnerRequest changeAccountOwnerRequest) {
         return ResponseEntity.ok(accountService.changeAccountOwner(UUID.fromString(userDetails.getUsername()), accountId, changeAccountOwnerRequest));
     }
 

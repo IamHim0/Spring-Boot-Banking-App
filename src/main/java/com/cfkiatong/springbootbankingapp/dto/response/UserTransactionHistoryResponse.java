@@ -2,15 +2,6 @@ package com.cfkiatong.springbootbankingapp.dto.response;
 
 import java.util.List;
 
-public class UserTransactionHistoryResponse {
+public record UserTransactionHistoryResponse(List<TransactionResponse> transactions) {
 
-    List<TransactionResponse> transactions;
-
-    public UserTransactionHistoryResponse(List<TransactionResponse> transactions) {
-        this.transactions = transactions;
-    }
-
-    public List<TransactionResponse> getTransactions() {
-        return transactions;
-    }
 }
