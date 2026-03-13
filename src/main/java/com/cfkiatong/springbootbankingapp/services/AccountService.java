@@ -29,8 +29,13 @@ public class AccountService {
         this.mapper = mapper;
     }
 
-    private Account findAccount(UUID id) {
-        return accountRepository.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+    private Account findAndValidateAccount(UUID ownerId, UUID accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        if (!account.getAccountOwner().getUserId().equals(ownerId)) {
+            throw new ForbiddenException();
+        }
+        return account;
     }
 
     public AccountResponse createAccount(UUID ownerId) {
@@ -44,32 +49,24 @@ public class AccountService {
     }
 
     public AccountResponse getAccount(UUID accountOwnerId, UUID accountId) {
-        Account account = findAccount(accountId);
-
-        if (!account.getAccountOwner().getUserId().equals(accountOwnerId)) {
-            throw new ForbiddenException();
-        }
+        Account account = findAndValidateAccount(accountOwnerId, accountId);
 
         return mapper.mapToAccountResponse(account);
     }
 
     @Transactional
-    public AccountResponse changeAccountOwner(UUID accountOwnerId, UUID accountId, ChangeAccountOwnerRequest changeAccountOwnerRequest) {
-        Account account = findAccount(accountId);
-        UUID currentOwnerId = account.getAccountOwner().getUserId();
+    public AccountResponse changeAccountOwner(UUID ownerId, UUID accountId, ChangeAccountOwnerRequest changeAccountOwnerRequest) {
+        Account account = findAndValidateAccount(ownerId, accountId);
 
-        if (!currentOwnerId.equals(accountOwnerId)) {
-            throw new ForbiddenException();
-        }
 
         UserEntity newOwner = userEntityRepository.
                 findByUsername(
-                        changeAccountOwnerRequest.getNewAccountOwner())
-                .orElseThrow(() -> new UserNotFoundException(changeAccountOwnerRequest.getNewAccountOwner()));
+                        changeAccountOwnerRequest.newAccountOwner())
+                .orElseThrow(() -> new UserNotFoundException(changeAccountOwnerRequest.newAccountOwner()));
 
         UUID newOwnerId = newOwner.getUserId();
 
-        if (currentOwnerId.equals(newOwnerId)) {
+        if (ownerId.equals(newOwnerId)) {
             throw new InvalidAccountStateException("New owner must be different from current owner");
         }
 
@@ -79,11 +76,9 @@ public class AccountService {
     }
 
     public void deleteAccount(UUID ownerId, UUID accountId) {
-        if (!findAccount(accountId).getAccountOwner().getUserId().equals(ownerId)) {
-            throw new ForbiddenException();
-        }
+        Account account = findAndValidateAccount(ownerId, accountId);
 
-        accountRepository.deleteById(accountId);
+        accountRepository.deleteById(account.getId());
     }
 
 }

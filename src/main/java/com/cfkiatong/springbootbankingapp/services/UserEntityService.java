@@ -10,7 +10,6 @@ import com.cfkiatong.springbootbankingapp.exception.business.UpdateUserStatusExc
 import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.exception.business.UsernameUnavailableException;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
-import org.apache.catalina.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +33,7 @@ public class UserEntityService {
     }
 
     private UserEntity findUserEntity(UUID userId) {
-        return userEntityRepository.findById(userId).orElseThrow();
+        return userEntityRepository.findById(userId).orElseThrow(UserNotFoundException::new);
     }
 
     private UserEntity findUserEntity(String username) {
@@ -43,17 +42,17 @@ public class UserEntityService {
 
     public UserResponse createUser(CreateUserRequest createUserRequest) {
 
-        if (userEntityRepository.existsByUsername(createUserRequest.getUsername())) {
-            throw new UsernameUnavailableException(createUserRequest.getUsername());
+        if (userEntityRepository.existsByUsername(createUserRequest.username())) {
+            throw new UsernameUnavailableException(createUserRequest.username());
         }
 
         UserEntity user = new UserEntity(
-                createUserRequest.getFirstName(),
-                createUserRequest.getLastName(),
-                createUserRequest.getEmail(),
-                createUserRequest.getUsername(),
-                passwordEncoder.encode(createUserRequest.getPassword()),
-                createUserRequest.getRoles(),
+                createUserRequest.firstName(),
+                createUserRequest.lastName(),
+                createUserRequest.email(),
+                createUserRequest.username(),
+                passwordEncoder.encode(createUserRequest.password()),
+                createUserRequest.roles(),
                 null
         );
 
@@ -83,41 +82,28 @@ public class UserEntityService {
     }
 
     private UserResponse applyUserUpdates(UserEntity userEntity, UpdateUserRequest updateUserRequest) {
-        if (updateUserRequest.getNewUsername() != null) {
-            userEntity.setUsername(updateUserRequest.getNewUsername());
+        if (updateUserRequest.newUsername() != null) {
+            userEntity.setUsername(updateUserRequest.newUsername());
         }
 
-        if (updateUserRequest.getNewPassword() != null) {
-            userEntity.setPassword(passwordEncoder.encode(updateUserRequest.getNewPassword()));
+        if (updateUserRequest.newPassword() != null) {
+            userEntity.setPassword(passwordEncoder.encode(updateUserRequest.newPassword()));
         }
 
-        if (updateUserRequest.getNewEmail() != null) {
-            userEntity.setEmail(updateUserRequest.getNewEmail());
+        if (updateUserRequest.newEmail() != null) {
+            userEntity.setEmail(updateUserRequest.newEmail());
         }
 
-        if (updateUserRequest.getNewFirstName() != null) {
-            userEntity.setFirstName(updateUserRequest.getNewFirstName());
+        if (updateUserRequest.newFirstname() != null) {
+            userEntity.setFirstName(updateUserRequest.newFirstname());
         }
 
-        if (updateUserRequest.getNewLastName() != null) {
-            userEntity.setLastName(updateUserRequest.getNewLastName());
+        if (updateUserRequest.newLastname() != null) {
+            userEntity.setLastName(updateUserRequest.newLastname());
         }
 
         return mapper.mapToUserResponse(userEntity);
 
-    }
-
-    @Transactional
-    public UserResponse activateUser(String username) {
-        UserEntity userEntity = findUserEntity(username);
-
-        if (userEntity.getUserStatus() == UserStatus.ACTIVE) {
-            throw new UpdateUserStatusException("User is already active, no changes made.");
-        }
-
-        userEntity.activateUser();
-
-        return mapper.mapToUserResponse(userEntity);
     }
 
     @Transactional
@@ -160,6 +146,19 @@ public class UserEntityService {
         }
 
         userEntity.deleteUser();
+    }
+
+    @Transactional
+    public UserResponse activateUser(String username) {
+        UserEntity userEntity = findUserEntity(username);
+
+        if (userEntity.getUserStatus() == UserStatus.ACTIVE) {
+            throw new UpdateUserStatusException("User is already active, no changes made.");
+        }
+
+        userEntity.activateUser();
+
+        return mapper.mapToUserResponse(userEntity);
     }
 
 }

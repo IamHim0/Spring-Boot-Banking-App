@@ -64,7 +64,7 @@ public class AdminService {
     }
 
     public UserResponse getUser(String username) {
-        return mapper.mapToUserResponse(userEntityRepository.findByUsername(username).orElseThrow());
+        return mapper.mapToUserResponse(findUserEntity(username));
     }
 
     public AccountResponse getAccount(UUID accountId) {
@@ -109,15 +109,15 @@ public class AdminService {
     public UserRolesResponse updateUserRoles(String username, UpdateRolesRequest updateRolesRequest) {
         UserEntity userEntity = findUserEntity(username);
 
-        switch (updateRolesRequest.action().toLowerCase()) {
-            case "add" -> {
+        switch (updateRolesRequest.action().toUpperCase()) {
+            case "ADD" -> {
                 if (userEntity.getRoles().containsAll(updateRolesRequest.roles())) {
                     throw new UpdateUserRoleException("User already has the specified role(s). No changes made.");
                 }
 
                 userEntity.getRoles().addAll(updateRolesRequest.roles());
             }
-            case "delete" -> {
+            case "REMOVE" -> {
                 if (!userEntity.getRoles().containsAll(updateRolesRequest.roles())) {
                     throw new UpdateUserRoleException("User does not have the specified role(s). No changes made.");
                 }

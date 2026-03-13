@@ -1,10 +1,15 @@
 package com.cfkiatong.springbootbankingapp.service;
 
 import com.cfkiatong.springbootbankingapp.dto.Mapper;
+import com.cfkiatong.springbootbankingapp.dto.Role;
 import com.cfkiatong.springbootbankingapp.dto.request.ChangeAccountOwnerRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.AccountResponse;
 import com.cfkiatong.springbootbankingapp.entity.Account;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
+import com.cfkiatong.springbootbankingapp.exception.ForbiddenException;
+import com.cfkiatong.springbootbankingapp.exception.business.AccountNotFoundException;
+import com.cfkiatong.springbootbankingapp.exception.business.InvalidAccountStateException;
+import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.AccountRepository;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import com.cfkiatong.springbootbankingapp.services.AccountService;
@@ -15,12 +20,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,20 +38,19 @@ class AccountServiceTest {
     @Mock
     private AccountRepository accountRepository;
 
-    private Mapper mapper;
     private AccountService accountService;
 
-    private UUID ownerId;
-    private String ownerUsername;
-    private UUID accountId;
     private UserEntity userEntity;
     private Account account;
+
+    private final UUID ownerId = UUID.randomUUID();
+    private final UUID accountId = UUID.randomUUID();
+
     private final BigDecimal balance = new BigDecimal("10000");
-    private final BigDecimal zeroBalance = new BigDecimal("0");
 
     @BeforeEach
     void setup() {
-        mapper = new Mapper();
+        Mapper mapper = new Mapper();
         accountService = new AccountService(
                 accountRepository,
                 userEntityRepository,
@@ -52,22 +58,28 @@ class AccountServiceTest {
         );
 
         //ARRANGE
-        ownerId = UUID.randomUUID();
-        ownerUsername = "owner";
-        userEntity = new UserEntity();
+        userEntity = new UserEntity(
+                "firstName",
+                "lastName",
+                "email",
+                "owner",
+                "password",
+                new HashSet<>(Set.of(Role.ADMIN, Role.USER)),
+                null
+        );
         userEntity.setUserId(ownerId);
-        userEntity.setUsername(ownerUsername);
 
         account = new Account();
-        accountId = UUID.randomUUID();
         account.setId(accountId);
         account.setAccountOwner(userEntity);
         account.setBalance(balance);
     }
 
+    //ACCOUNT SERVICE TESTS
+
     @Test
     void getAccount_validOwner_returnAccountResponse() {
-        AccountResponse expectedResponse = new AccountResponse(accountId, ownerUsername, balance);
+        AccountResponse expectedResponse = new AccountResponse(accountId, "owner", balance);
 
         when(accountRepository.findById(accountId))
                 .thenReturn(Optional.of(account));
@@ -94,39 +106,72 @@ class AccountServiceTest {
         assertEquals(userEntity, savedAccount.getAccountOwner());
         assertEquals(BigDecimal.ZERO, savedAccount.getBalance());
 
-        assertEquals(ownerUsername, result.accountOwner());
+        assertEquals("owner", result.accountOwner());
         assertEquals(BigDecimal.ZERO, result.balance());
     }
 
     @Test
     void changeAccountOwner_validRequest_updateAccountOwner() {
-        //Arrange
         UserEntity newOwner = new UserEntity();
         newOwner.setUsername("newOwner");
 
-        ChangeAccountOwnerRequest request = new ChangeAccountOwnerRequest();
-        request.setNewAccountOwner("newOwner");
+        ChangeAccountOwnerRequest request = new ChangeAccountOwnerRequest("newOwner");
 
         AccountResponse expectedResponse = new AccountResponse(accountId, "newOwner", balance);
         when(userEntityRepository.findByUsername("newOwner")).thenReturn(Optional.of(newOwner));
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
-        //Act
         AccountResponse result = accountService.changeAccountOwner(ownerId, accountId, request);
 
-        //Assert & Verify
         assertEquals(newOwner, account.getAccountOwner());
         assertEquals(expectedResponse, result);
     }
 
 
     @Test
-    void shouldDeleteAccountFromRepository() {
+    void deleteAccount_validOwner_deleteAccount() {
         when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
 
         accountService.deleteAccount(ownerId, accountId);
 
         verify(accountRepository).deleteById(accountId);
+    }
+
+    //EXCEPTION TESTS
+
+    @Test
+    void findAndValidateAccount_nonexistentAccount_throwAccountNotFoundException() {
+        when(accountRepository.findById(accountId)).thenReturn(Optional.empty());
+
+        assertThrows(AccountNotFoundException.class, () -> accountService.getAccount(ownerId, accountId));
+    }
+
+    @Test
+    void findAndValidateAccount_invalidOwner_throwForbiddenException() {
+        UUID wrongOwnerId = UUID.randomUUID();
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+        assertThrows(ForbiddenException.class, () -> accountService.getAccount(wrongOwnerId, accountId));
+    }
+
+    @Test
+    void changeAccountOwner_newAccountOwnerUserNotFound_throwUserNotFoundException() {
+        ChangeAccountOwnerRequest changeAccountOwnerRequest = new ChangeAccountOwnerRequest("newOwner");
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(userEntityRepository.findByUsername(changeAccountOwnerRequest.newAccountOwner())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> accountService.changeAccountOwner(ownerId, accountId, changeAccountOwnerRequest));
+    }
+
+    @Test
+    void changeAccountOwner_newUserEqualsCurrentUser_throwInvalidAccountStateException() {
+        ChangeAccountOwnerRequest changeAccountOwnerRequest = new ChangeAccountOwnerRequest("owner");
+
+        when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+        when(userEntityRepository.findByUsername(changeAccountOwnerRequest.newAccountOwner())).thenReturn(Optional.of(userEntity));
+
+        assertThrows(InvalidAccountStateException.class, () -> accountService.changeAccountOwner(ownerId, accountId, changeAccountOwnerRequest));
     }
 
 }

@@ -21,7 +21,6 @@ public class LoginAttemptService {
     }
 
     private UserEntity findUser(String username) {
-
         return userEntityRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
     }
 
@@ -35,7 +34,6 @@ public class LoginAttemptService {
             userEntity.lockUser();
             userEntity.setUnlocksAt(LocalDateTime.now().plusHours(2));
         }
-
     }
 
     @Transactional

@@ -34,7 +34,7 @@ public class UserEntityController {
 
     @PatchMapping("/me")
     public ResponseEntity<UserResponse> updateUser(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UpdateUserRequest updateUserRequest) {
-        if (!updateUserRequest.oneFieldPresent()) {
+        if (updateUserRequest.newUsername() != null || updateUserRequest.newPassword() != null || updateUserRequest.newEmail() != null || updateUserRequest.newFirstname() != null || updateUserRequest.newLastname() != null) {
             throw new NoFieldUpdatedException();
         }
 

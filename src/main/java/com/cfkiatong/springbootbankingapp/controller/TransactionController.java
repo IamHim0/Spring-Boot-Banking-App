@@ -34,7 +34,7 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<BalanceResponse> makeTransaction(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId, @Valid @RequestBody TransactionRequest transactionRequest) {
-        if (transactionRequest.getType() == TransactionType.TRANSFER && transactionRequest.getTargetAccountId() == null) {
+        if (transactionRequest.type() == TransactionType.TRANSFER && transactionRequest.targetAccountId() == null) {
             throw new NoTargetAccountException();
         }
 

@@ -58,7 +58,7 @@ public class TransactionService {
 
     @Transactional
     public BalanceResponse makeTransaction(UUID ownerId, UUID accountId, TransactionRequest transactionRequest) {
-        TransactionType type = transactionRequest.getType();
+        TransactionType type = transactionRequest.type();
 
         Account account = findAndValidateAccount(ownerId, accountId);
         UUID targetAccId = null;
@@ -69,20 +69,20 @@ public class TransactionService {
         BigDecimal targetBalanceAfter = null;
 
         Consumer<BigDecimal> withdraw = amount -> {
-            if (account.getBalance().compareTo(transactionRequest.getAmount()) < 0) {
+            if (account.getBalance().compareTo(transactionRequest.amount()) < 0) {
                 throw new InsufficientBalanceException();
             }
 
-            account.setBalance(account.getBalance().subtract(transactionRequest.getAmount()));
+            account.setBalance(account.getBalance().subtract(transactionRequest.amount()));
         };
 
         Consumer<Account> depositTo = (targetAccount) -> {
-            targetAccount.setBalance(targetAccount.getBalance().add(transactionRequest.getAmount()));
+            targetAccount.setBalance(targetAccount.getBalance().add(transactionRequest.amount()));
         };
 
         switch (type) {
             case WITHDRAWAL:
-                withdraw.accept(transactionRequest.getAmount());
+                withdraw.accept(transactionRequest.amount());
 
                 break;
             case DEPOSIT:
@@ -90,11 +90,11 @@ public class TransactionService {
 
                 break;
             case TRANSFER:
-                withdraw.accept(transactionRequest.getAmount());
+                withdraw.accept(transactionRequest.amount());
 
                 Account targetAccount =
-                        accountRepository.findById(transactionRequest.getTargetAccountId())
-                                .orElseThrow(() -> new AccountNotFoundException(transactionRequest.getTargetAccountId()));
+                        accountRepository.findById(transactionRequest.targetAccountId())
+                                .orElseThrow(() -> new AccountNotFoundException(transactionRequest.targetAccountId()));
                 targetAccId = targetAccount.getId();
                 targetBalanceBefore = targetAccount.getBalance();
 
@@ -109,7 +109,7 @@ public class TransactionService {
                 type,
                 account.getId(),
                 targetAccId,
-                transactionRequest.getAmount(),
+                transactionRequest.amount(),
                 sourceBalanceBefore,
                 account.getBalance(),
                 targetBalanceBefore,

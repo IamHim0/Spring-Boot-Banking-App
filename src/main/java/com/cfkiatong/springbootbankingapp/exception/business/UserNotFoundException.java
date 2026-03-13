@@ -5,7 +5,11 @@ import org.springframework.http.HttpStatus;
 public class UserNotFoundException extends BusinessException {
     public UserNotFoundException(String username) {
 
-        super("The user with username '" + username + "' does not exist");
+        super("The user with username '" + username + "' does not exist.");
+    }
+
+    public UserNotFoundException() {
+        super("User does not exist.");
     }
 
     public HttpStatus getStatus() {

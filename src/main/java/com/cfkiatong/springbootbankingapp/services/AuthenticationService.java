@@ -33,8 +33,8 @@ public class AuthenticationService {
             Authentication authentication =
                     authenticationManager.
                             authenticate(new UsernamePasswordAuthenticationToken(
-                                    authenticationRequest.getUsername(),
-                                    authenticationRequest.getPassword()));
+                                    authenticationRequest.username(),
+                                    authenticationRequest.password()));
 
             UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
@@ -44,7 +44,7 @@ public class AuthenticationService {
 
             return mapToAuthenticationResponse(jwtService.generateToken(principal));
         } catch (BadCredentialsException e) {
-            loginAttemptService.recordFailedAttempt(authenticationRequest.getUsername());
+            loginAttemptService.recordFailedAttempt(authenticationRequest.username());
             throw e;
         }
     }

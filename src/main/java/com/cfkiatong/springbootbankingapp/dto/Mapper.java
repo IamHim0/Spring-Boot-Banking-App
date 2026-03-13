@@ -6,6 +6,7 @@ import com.cfkiatong.springbootbankingapp.entity.Transaction;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -19,7 +20,7 @@ public class Mapper {
                 userEntity.getFirstName(),
                 userEntity.getLastName(),
                 userEntity.getAccounts() == null ?
-                        List.of()
+                        Collections.emptyList()
                         :
                         userEntity.getAccounts().
                                 stream().map(Account::getId).toList()

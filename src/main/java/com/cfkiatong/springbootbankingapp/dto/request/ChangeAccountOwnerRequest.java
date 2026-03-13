@@ -1,14 +1,5 @@
 package com.cfkiatong.springbootbankingapp.dto.request;
 
-public class ChangeAccountOwnerRequest {
+public record ChangeAccountOwnerRequest(String newAccountOwner) {
 
-    private String newAccountOwner;
-
-    public String getNewAccountOwner() {
-        return newAccountOwner;
-    }
-
-    public void setNewAccountOwner(String newAccountOwner) {
-        this.newAccountOwner = newAccountOwner;
-    }
 }
