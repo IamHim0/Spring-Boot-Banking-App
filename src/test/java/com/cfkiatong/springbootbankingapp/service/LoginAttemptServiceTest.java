@@ -24,17 +24,16 @@ import static org.mockito.Mockito.when;
 public class LoginAttemptServiceTest {
 
     @Mock
-    private UserEntityRepository userEntityRepository;
+    private UserEntityRepository userRepository;
 
     private LoginAttemptService loginAttemptService;
 
     private UserEntity userEntity;
     private final UUID userId = UUID.randomUUID();
 
-
     @BeforeEach
     void setup() {
-        loginAttemptService = new LoginAttemptService(userEntityRepository);
+        loginAttemptService = new LoginAttemptService(userRepository);
 
         userEntity = new UserEntity(
                 "firstName",
@@ -42,7 +41,7 @@ public class LoginAttemptServiceTest {
                 "email",
                 "username",
                 "password",
-                Set.of(Role.USER, Role.ADMIN),
+                Set.of(Role.ADMIN, Role.USER),
                 null
         );
 
@@ -51,7 +50,7 @@ public class LoginAttemptServiceTest {
 
     @Test
     void recordFailedAttempt_notMaxFailedLoginAttempts_incrementUserFailedLoginAttempts() {
-        when(userEntityRepository.findByUsername(userEntity.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userRepository.findByUsername(userEntity.getUsername())).thenReturn(Optional.of(userEntity));
 
         loginAttemptService.recordFailedAttempt(userEntity.getUsername());
 
@@ -61,13 +60,13 @@ public class LoginAttemptServiceTest {
     @Test
     void recordFailedAttempt_maxFailedLoginAttempts_lockUser() {
         userEntity.setFailedLoginAttempts(2);
-        when(userEntityRepository.findByUsername(userEntity.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userRepository.findByUsername(userEntity.getUsername())).thenReturn(Optional.of(userEntity));
 
         loginAttemptService.recordFailedAttempt(userEntity.getUsername());
 
+        assertSame(UserStatus.LOCKED, userEntity.getUserStatus());
         assertNotNull(userEntity.getUnlocksAt());
         assertEquals(3, userEntity.getFailedLoginAttempts());
-        assertSame(UserStatus.LOCKED, userEntity.getUserStatus());
     }
 
     @Test
@@ -76,7 +75,7 @@ public class LoginAttemptServiceTest {
         userEntity.lockUser();
         userEntity.setUnlocksAt(LocalDateTime.now());
 
-        when(userEntityRepository.findByUsername(userEntity.getUsername())).thenReturn(Optional.of(userEntity));
+        when(userRepository.findByUsername(userEntity.getUsername())).thenReturn(Optional.of(userEntity));
 
         loginAttemptService.resetFailedAttempts(userEntity.getUsername());
 
@@ -87,9 +86,10 @@ public class LoginAttemptServiceTest {
 
     //EXCEPTION TESTING
     @Test
-    void findUser_invalidUser_throwsUserNotFoundException() {
-        when(userEntityRepository.findByUsername("nonexistentUser")).thenReturn(Optional.empty());
+    void findUser_nonexistentUser_throwUserNotFoundException() {
+        when(userRepository.findByUsername("nonexistentUser")).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> loginAttemptService.recordFailedAttempt("nonexistentUser"));
     }
+
 }
