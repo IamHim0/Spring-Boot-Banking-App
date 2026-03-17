@@ -23,7 +23,7 @@ public class UserPrincipal implements UserDetails {
     private final String password;
     private final UserStatus userStatus;
     private final int failedLoginAttempts;
-    private LocalDateTime unlocksAt;
+    private final LocalDateTime unlocksAt;
     private final Set<Role> roles;
 
     public UserPrincipal(UserEntity userEntity) {
