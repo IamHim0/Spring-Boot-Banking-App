@@ -1,0 +1,6 @@
+package com.cfkiatong.springbootbankingapp.service;
+
+public class AuthenticationServiceTest {
+
+
+}

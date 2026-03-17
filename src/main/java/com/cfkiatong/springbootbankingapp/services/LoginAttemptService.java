@@ -1,8 +1,6 @@
 package com.cfkiatong.springbootbankingapp.services;
 
-import com.cfkiatong.springbootbankingapp.dto.UserStatus;
 import com.cfkiatong.springbootbankingapp.entity.UserEntity;
-import com.cfkiatong.springbootbankingapp.exception.business.UserInactiveException;
 import com.cfkiatong.springbootbankingapp.exception.business.UserNotFoundException;
 import com.cfkiatong.springbootbankingapp.repository.UserEntityRepository;
 import org.springframework.stereotype.Service;
