@@ -5,7 +5,6 @@ import com.cfkiatong.springbootbankingapp.dto.TransactionType;
 import com.cfkiatong.springbootbankingapp.dto.request.TransactionRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.BalanceResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.TransactionResponse;
-import com.cfkiatong.springbootbankingapp.entity.Transaction;
 import com.cfkiatong.springbootbankingapp.security.CustomAuthenticationEntryPoint;
 import com.cfkiatong.springbootbankingapp.security.jwt.JwtFilter;
 import com.cfkiatong.springbootbankingapp.security.jwt.JwtService;
@@ -26,7 +25,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,20 +34,25 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
-        controllers = TransactionController.class,
-        excludeAutoConfiguration = {
-                SecurityAutoConfiguration.class,
-                SecurityFilterAutoConfiguration.class
-        })
+        controllers = TransactionController.class
+//        , excludeAutoConfiguration = {
+//                SecurityAutoConfiguration.class,
+//                SecurityFilterAutoConfiguration.class
+//        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 @Import({
         SecurityConfiguration.class,
-        JwtFilter.class
+//        JwtFilter.class,
+        com.fasterxml.jackson.databind.ObjectMapper.class
 })
 class TransactionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @MockitoBean
     private TransactionService transactionService;
@@ -76,7 +79,8 @@ class TransactionControllerTest {
 
         mockMvc.perform(get("/api/v1/users/me/accounts/{accountId}/transactions/balance", accountId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value("1500.0"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.balance").value(1500));
     }
 
     @Test
@@ -93,9 +97,10 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/v1/users/me/accounts/{accountId}/transactions", accountId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(transactionRequest)))
+                        .content(objectMapper.writeValueAsString(transactionRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value("1600.0"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.balance").value(1600.0));
     }
 
     @Test
@@ -112,9 +117,10 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/v1/users/me/accounts/{accountId}/transactions", accountId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(transactionRequest)))
+                        .content(objectMapper.writeValueAsString(transactionRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value("1400.0"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.balance").value(1400));
     }
 
     @Test
@@ -131,9 +137,10 @@ class TransactionControllerTest {
 
         mockMvc.perform(post("/api/v1/users/me/accounts/{accountId}/transactions", accountId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(transactionRequest)))
+                        .content(objectMapper.writeValueAsString(transactionRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.balance").value("1400.0"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.balance").value(1400.0));
     }
 
     @Test
@@ -157,6 +164,7 @@ class TransactionControllerTest {
 
         mockMvc.perform(get("/api/v1/users/me/accounts/{accountId}/transactions/userhistory", accountId))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
     }
 
@@ -180,6 +188,7 @@ class TransactionControllerTest {
 
         mockMvc.perform(get("/api/v1/users/me/accounts/{accountId}/transactions/accounthistory", accountId))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray());
     }
 
