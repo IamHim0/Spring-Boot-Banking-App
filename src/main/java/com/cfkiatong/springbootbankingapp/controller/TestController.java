@@ -1,6 +1,6 @@
 package com.cfkiatong.springbootbankingapp.controller;
 
-import com.cfkiatong.springbootbankingapp.dto.*;
+import com.cfkiatong.springbootbankingapp.dto.TransactionType;
 import com.cfkiatong.springbootbankingapp.dto.request.TransactionRequest;
 import com.cfkiatong.springbootbankingapp.dto.response.BalanceResponse;
 import com.cfkiatong.springbootbankingapp.dto.response.TransactionResponse;
@@ -16,16 +16,16 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/users/me/accounts/{accountId}/transactions")
-public class TransactionController {
+@RequestMapping("api/v1/users/me/accounts/{accountId}/test")
+public class TestController {
 
     private final TransactionService transactionService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TestController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/balance")
+    @GetMapping
     public ResponseEntity<BalanceResponse> getBalance(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID accountId) {
         BalanceResponse balanceResponse = transactionService.getBalance(UUID.fromString(userDetails.getUsername()), accountId);
 
