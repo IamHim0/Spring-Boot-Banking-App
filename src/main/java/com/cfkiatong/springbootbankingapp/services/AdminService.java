@@ -124,7 +124,7 @@ public class AdminService {
 
                 userEntity.getRoles().removeAll(updateRolesRequest.roles());
             }
-            default -> throw new UpdateUserRoleException("Invalid action. Must be 'add' or 'delete'.");
+            default -> throw new UpdateUserRoleException("Invalid action. Must be 'add' or 'remove'.");
         }
 
         return mapper.mapToUserRolesResponse(userEntity);
